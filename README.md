@@ -25,7 +25,7 @@ There will be the following main scripts involved in this project:
 
 `board.js`: this script will ensure that `Smoot` pieces stay within bounds and that they are able to `bounce()` at an appropriate angles when they reach the wall.
 
-`cannon.js`: this script will hold an randomly generated `Smoot` piece and a shoot() method. This
+`cannon.js`: this script will hold a randomly generated `Smoot` piece and a shoot() method. This
 method will send the `Smoot` piece to the `game_view` and generate another `Smoot`.
 
 `smoot.js`: this script will hold the `Smoot` class. This class holds a `Boolean` property of `moving` and a `color` property. It will have a method stop() for when it touches another `Smoot`. It will have a `neighbor_match` method to check if 2+ of its neighbor pieces are of the same `color`; if so, it will invoke its `destroy()` function.
