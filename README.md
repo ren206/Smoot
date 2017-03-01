@@ -6,7 +6,6 @@ Smoot is a browser-based game inspired by Snood. The goal of the game is to clea
 ## Functionality & MVP
 In this game, the user will be able to:
 - [ ] Aim and shoot the cannon loaded with a `Smoot`
-- [ ]
 - [ ] Save local high scores in a cookie
 
 ## Wireframes
