@@ -13,7 +13,7 @@ In this game, the user will be able to:
 
 ## Architecture and Technologies
 In implementing this game, I will use the following libraries:
-* `JavaScript`: for starting the game, advancing levels upon clearing the board, and determining the lose condition
+* `JavaScript`: for starting the game, ending the game upon clearing the board, and determining the lose condition
 * `Easel.js` with `HTML5 Canvas`: for DOM manipulation and rendering the grid of still and moving `Smoot` pieces
 * Webpack: for bundling and serving up the various scripts.
 
