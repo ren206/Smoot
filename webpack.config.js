@@ -1,7 +1,7 @@
 const path = require('path');
 module.exports = {
  context: __dirname,
- entry: './lib/smoot.js',
+ entry: './lib/entry.js',
  output: {
    path: './',
    filename: 'bundle.js'
