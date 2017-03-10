@@ -81,9 +81,9 @@ exports.default = {
   BOARD: {
     WIDTH: 700,
     HEIGHT: 700,
-    BG_COLOR: '#000',
+    BG_COLOR: 'black',
     ROW_SIZE: 13,
-    ROW_COUNT: 13,
+    ROW_COUNT: 14,
     FILLED_ROW_COUNT: 6,
     OFFSET: 12,
     GRID_DIRECTIONS_LEFT: [[-1, -1], [-1, 0], [0, -1], [0, 1], [1, -1], [1, 0]],
@@ -92,18 +92,24 @@ exports.default = {
 
   // Bottom line settings
   BOTTOM_LINE: {
-    COLOR: "white"
+    COLOR: "pink"
   },
 
   // Cannon settings
   CANNON: {
-    FIREPOWER: 15
+    FIREPOWER: 15,
+    RADIUS: 30
   },
 
   // Smoot settings
   SMOOT: {
     RADIUS: 25,
-    COLORS: ["red", "green", "blue"]
+    NUM_COLORS: 6,
+    COLORS: ["red", "green", "blue", "orange", "purple", "silver"]
+  },
+
+  SMOOT_SPACE: {
+    COLOR: "gray"
   }
 
 };
@@ -151,11 +157,8 @@ Object.defineProperty(exports, "__esModule", {
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); // import * as MyCanvas from './my_canvas';
 
-var _my_canvas = __webpack_require__(1);
-
-var MyCanvas = _interopRequireWildcard(_my_canvas);
 
 var _settings = __webpack_require__(0);
 
@@ -165,9 +168,9 @@ var _utils = __webpack_require__(3);
 
 var Utils = _interopRequireWildcard(_utils);
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -175,10 +178,9 @@ var Smoot = function () {
   function Smoot(options) {
     _classCallCheck(this, Smoot);
 
-    this.canvasElement = MyCanvas.getElement();
-    this.canvasBorders = MyCanvas.getBorders();
-
-    this.color = options.color || _settings2.default.SMOOT.COLORS[Math.floor(Math.random() * _settings2.default.SMOOT.COLORS.length)];
+    // this.canvasElement = MyCanvas.getElement();
+    // this.canvasBorders = MyCanvas.getBorders();
+    this.color = options.color || this.getRandomColor();
     this.centerPos = options.centerPos;
     this.gridPos = options.gridPos;
     this.radius = options.radius || _settings2.default.SMOOT.RADIUS;
@@ -255,6 +257,12 @@ var Smoot = function () {
       ctx.closePath();
       ctx.lineWidth = 2;
       ctx.fillStyle = "black", ctx.fill();
+    }
+  }, {
+    key: 'getRandomColor',
+    value: function getRandomColor() {
+      var numColors = _settings2.default.SMOOT.NUM_COLORS;
+      return _settings2.default.SMOOT.COLORS[Math.floor(Math.random() * numColors)];
     }
   }, {
     key: 'matchesWith',
@@ -342,7 +350,6 @@ var Game = function () {
     _classCallCheck(this, Game);
 
     this.board = this.newBoard();
-    // this.bottomLine =
     this.smoot = this.generateRandomSmoot();
     this.cannon = this.newCannon();
   }
@@ -510,6 +517,8 @@ Object.defineProperty(exports, "__esModule", {
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+// import * as MyCanvas from './my_canvas';
+
 
 var _smoot = __webpack_require__(2);
 
@@ -518,10 +527,6 @@ var _smoot2 = _interopRequireDefault(_smoot);
 var _smoot_space = __webpack_require__(8);
 
 var _smoot_space2 = _interopRequireDefault(_smoot_space);
-
-var _my_canvas = __webpack_require__(1);
-
-var MyCanvas = _interopRequireWildcard(_my_canvas);
 
 var _settings = __webpack_require__(0);
 
@@ -542,8 +547,8 @@ var Board = function () {
     _classCallCheck(this, Board);
 
     this.game = game;
-    this.canvasElement = MyCanvas.getElement();
-    this.canvasBorders = MyCanvas.getBorders();
+    // this.canvasElement = MyCanvas.getElement();
+    // this.canvasBorders = MyCanvas.getBorders();
     this.grid = [];
   }
 
@@ -559,12 +564,14 @@ var Board = function () {
 
       closestPos = _findClosestPosAndGri2[0];
       gridPos = _findClosestPosAndGri2[1];
+
+
+      smoot.stop();
       var _ref = [closestPos, gridPos];
       smoot.centerPos = _ref[0];
       smoot.gridPos = _ref[1];
 
       this.grid[gridPos[0]][gridPos[1]] = smoot;
-      smoot.stop();
     }
   }, {
     key: 'createGrid',
@@ -572,7 +579,7 @@ var Board = function () {
       var radius = _settings2.default.SMOOT.RADIUS;
       var diameter = radius * 2;
       var offset = _settings2.default.BOARD.OFFSET;
-      var rowPos = [radius, radius + offset];
+      var rowPos = [radius, radius];
       // don't need incremental variable because rowPos is not being assigned anywhere
       for (var rowIdx = 0; rowIdx < _settings2.default.BOARD.ROW_COUNT; rowIdx++) {
         var row = [];
@@ -621,7 +628,7 @@ var Board = function () {
         }
 
         this.grid.push(row);
-        var gapCloser = radius / 6;
+        var gapCloser = radius / 12;
         rowPos[1] += diameter - gapCloser;
       }
     }
@@ -631,6 +638,7 @@ var Board = function () {
       this.drawBackgroundNonTrailing(ctx);
       // this.drawBackgroundTrailing(ctx);
       this.drawGrid(ctx);
+      this.drawBottomLine(ctx);
     }
   }, {
     key: 'drawBackgroundNonTrailing',
@@ -644,6 +652,16 @@ var Board = function () {
     value: function drawBackgroundTrailing(ctx) {
       ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
       ctx.fillRect(0, 0, _settings2.default.BOARD.WIDTH, _settings2.default.BOARD.HEIGHT);
+    }
+  }, {
+    key: 'drawBottomLine',
+    value: function drawBottomLine(ctx) {
+      ctx.strokeStyle = _settings2.default.BOTTOM_LINE.COLOR;
+      ctx.beginPath();
+      var lineHeight = _settings2.default.BOARD.HEIGHT - _settings2.default.CANNON.RADIUS;
+      ctx.moveTo(0, lineHeight);
+      ctx.lineTo(_settings2.default.BOARD.WIDTH, lineHeight);
+      ctx.stroke();
     }
   }, {
     key: 'drawGrid',
@@ -678,13 +696,13 @@ var Board = function () {
 
       for (var rowIdx = 0; rowIdx < _settings2.default.BOARD.ROW_COUNT; rowIdx++) {
         for (var slotIdx = 0; slotIdx < _settings2.default.BOARD.ROW_SIZE; slotIdx++) {
-          var smootPlaceholder = this.grid[rowIdx][slotIdx];
-          var newDistance = Utils.getDistanceBetween2(smoot.centerPos, smootPlaceholder.centerPos);
+          var hangingObject = this.grid[rowIdx][slotIdx];
+          var newDistance = Utils.getDistanceBetween2(smoot.centerPos, hangingObject.centerPos);
 
-          if (smootPlaceholder instanceof _smoot_space2.default && newDistance < _settings2.default.SMOOT.RADIUS * 2) {
+          if (hangingObject instanceof _smoot_space2.default && newDistance < _settings2.default.SMOOT.RADIUS * 2) {
             // assign shortest distance
             if (!closestPos || newDistance < Utils.getDistanceBetween2(smoot.centerPos, closestPos)) {
-              closestPos = smootPlaceholder.centerPos;
+              closestPos = hangingObject.centerPos;
               gridPos = [rowIdx, slotIdx];
             }
           }
@@ -804,7 +822,7 @@ var Cannon = function () {
     this.game = game;
 
     this.base = {
-      radius: _settings2.default.SMOOT.RADIUS + 5,
+      radius: _settings2.default.CANNON.RADIUS,
       centerX: _settings2.default.BOARD.WIDTH / 2,
       centerY: _settings2.default.BOARD.HEIGHT + 2
     };
@@ -828,22 +846,6 @@ var Cannon = function () {
   }
 
   _createClass(Cannon, [{
-    key: 'getMousePosition',
-    value: function getMousePosition(event) {
-      var borders = this.canvasBorders;
-      this.borePos = {
-        angle: Math.atan2(this.base.centerY - (event.clientY - borders.top), event.clientX - borders.left - this.base.centerX),
-        mouseX: event.clientX - borders.left,
-        mouseY: event.clientY - borders.top
-      };
-    }
-  }, {
-    key: 'logMousePosition',
-    value: function logMousePosition(event) {
-      console.log(this.borePos);
-      console.log(this.borePos);
-    }
-  }, {
     key: 'draw',
     value: function draw(ctx) {
       // this.drawCursorPos(ctx, this.borePos);
@@ -935,6 +937,22 @@ var Cannon = function () {
       // prevent changing direction while smoot is flying
       this.game.smoot.vel = [this.firePower * Math.cos(this.borePos.angle), -this.firePower * Math.sin(this.borePos.angle)];
     }
+  }, {
+    key: 'getMousePosition',
+    value: function getMousePosition(event) {
+      var borders = this.canvasBorders;
+      this.borePos = {
+        angle: Math.atan2(this.base.centerY - (event.clientY - borders.top), event.clientX - borders.left - this.base.centerX),
+        mouseX: event.clientX - borders.left,
+        mouseY: event.clientY - borders.top
+      };
+    }
+  }, {
+    key: 'logMousePosition',
+    value: function logMousePosition(event) {
+      console.log(this.borePos);
+      console.log(this.borePos);
+    }
   }]);
 
   return Cannon;
@@ -967,7 +985,7 @@ var SmootSpace = function () {
   function SmootSpace(options) {
     _classCallCheck(this, SmootSpace);
 
-    this.color = options.color || "white";
+    this.color = options.color || _settings2.default.SMOOT_SPACE.COLOR;
     this.centerPos = options.centerPos;
     this.gridPos = options.gridPos;
     this.radius = options.radius || _settings2.default.SMOOT.RADIUS;
@@ -975,17 +993,17 @@ var SmootSpace = function () {
   }
 
   _createClass(SmootSpace, [{
-    key: "draw",
+    key: 'draw',
     value: function draw(ctx) {
       // this.drawBlanks();
-      this.drawWhiteCircle(ctx);
+      this.drawCircle(ctx);
     }
   }, {
-    key: "drawBlanks",
+    key: 'drawBlanks',
     value: function drawBlanks() {}
   }, {
-    key: "drawWhiteCircle",
-    value: function drawWhiteCircle(ctx) {
+    key: 'drawCircle',
+    value: function drawCircle(ctx) {
       ctx.fillStyle = this.color;
       ctx.beginPath();
       ctx.arc(this.centerPos[0], this.centerPos[1], this.radius, 0, Math.PI * 2);
