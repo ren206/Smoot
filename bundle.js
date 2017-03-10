@@ -90,6 +90,11 @@ exports.default = {
     GRID_DIRECTIONS_RIGHT: [[-1, 0], [-1, 1], [0, -1], [0, 1], [1, 0], [1, 1]]
   },
 
+  // Bottom line settings
+  BOTTOM_LINE: {
+    COLOR: "white"
+  },
+
   // Cannon settings
   CANNON: {
     FIREPOWER: 15
@@ -337,8 +342,9 @@ var Game = function () {
     _classCallCheck(this, Game);
 
     this.board = this.newBoard();
-    this.cannon = this.newCannon();
+    // this.bottomLine =
     this.smoot = this.generateRandomSmoot();
+    this.cannon = this.newCannon();
   }
 
   _createClass(Game, [{
@@ -370,7 +376,7 @@ var Game = function () {
         object.draw(ctx);
       });
 
-      this.drawSmootPos(ctx);
+      // this.drawSmootPos(ctx);
     }
   }, {
     key: 'drawSmootPos',
@@ -390,7 +396,7 @@ var Game = function () {
       var matches = this.board.findNeighboringSmootMatches(this.smoot);
       // findChainingSmootMatches(this.smoot);
 
-      console.log(matches);
+      // console.log(matches);
 
       if (matches.length > 2) {
         this.dropMatches(matches);
@@ -465,7 +471,6 @@ var GameView = function () {
     this.game = game;
     this.ctx = ctx;
     this.canvas = ctx.canvas;
-    this.board = this.game.board;
   }
 
   _createClass(GameView, [{
@@ -616,20 +621,28 @@ var Board = function () {
         }
 
         this.grid.push(row);
-        rowPos[1] += diameter;
+        var gapCloser = radius / 6;
+        rowPos[1] += diameter - gapCloser;
       }
     }
   }, {
     key: 'draw',
     value: function draw(ctx) {
-      this.drawBackground(ctx);
+      this.drawBackgroundNonTrailing(ctx);
+      // this.drawBackgroundTrailing(ctx);
       this.drawGrid(ctx);
     }
   }, {
-    key: 'drawBackground',
-    value: function drawBackground(ctx) {
+    key: 'drawBackgroundNonTrailing',
+    value: function drawBackgroundNonTrailing(ctx) {
       ctx.clearRect(0, 0, _settings2.default.BOARD.WIDTH, _settings2.default.BOARD.HEIGHT);
       ctx.fillStyle = _settings2.default.BOARD.BG_COLOR;
+      ctx.fillRect(0, 0, _settings2.default.BOARD.WIDTH, _settings2.default.BOARD.HEIGHT);
+    }
+  }, {
+    key: 'drawBackgroundTrailing',
+    value: function drawBackgroundTrailing(ctx) {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
       ctx.fillRect(0, 0, _settings2.default.BOARD.WIDTH, _settings2.default.BOARD.HEIGHT);
     }
   }, {
@@ -797,7 +810,7 @@ var Cannon = function () {
     };
 
     this.boreSize = {
-      length: this.base.radius * 1.5,
+      length: this.base.radius * 2,
       width: 5
     };
 
@@ -833,12 +846,13 @@ var Cannon = function () {
   }, {
     key: 'draw',
     value: function draw(ctx) {
-      this.drawCursorPos(ctx, this.borePos);
-      this.drawCursor(ctx, this.borePos);
+      // this.drawCursorPos(ctx, this.borePos);
+      // this.drawCursor(ctx, this.borePos);
 
       this.drawBase(ctx, this.base);
 
-      this.drawBore(ctx, this.boreSize, this.borePos);
+      // this.drawLineBore(ctx, this.boreSize, this.borePos);
+      this.drawTriangleBore(ctx, this.boreSize, this.borePos);
     }
   }, {
     key: 'drawCursor',
@@ -867,15 +881,15 @@ var Cannon = function () {
           centerX = _ref3.centerX,
           centerY = _ref3.centerY;
 
+      ctx.fillStyle = this.game.smoot.color;
       ctx.beginPath();
       ctx.arc(centerX, centerY, radius, Math.PI, 0);
-      ctx.fillStyle = "white";
       ctx.fill();
       ctx.closePath();
     }
   }, {
-    key: 'drawBore',
-    value: function drawBore(ctx, _ref4, _ref5) {
+    key: 'drawLineBore',
+    value: function drawLineBore(ctx, _ref4, _ref5) {
       var length = _ref4.length,
           width = _ref4.width;
       var angle = _ref5.angle,
@@ -886,11 +900,34 @@ var Cannon = function () {
           centerX = _base.centerX,
           centerY = _base.centerY;
 
-      ctx.strokeStyle = "white";
+      ctx.strokeStyle = this.game.smoot.color;
       ctx.beginPath();
       ctx.moveTo(centerX, centerY);
       ctx.lineTo(centerX + length * Math.cos(angle), centerY - length * Math.sin(angle));
       ctx.stroke();
+    }
+  }, {
+    key: 'drawTriangleBore',
+    value: function drawTriangleBore(ctx, _ref6, _ref7) {
+      var length = _ref6.length,
+          width = _ref6.width;
+      var angle = _ref7.angle,
+          mouseX = _ref7.mouseX,
+          mouseY = _ref7.mouseY;
+
+      // TODO: use trig to find way to keep angles consistent on rotation
+      var _base2 = this.base,
+          radius = _base2.radius,
+          centerX = _base2.centerX,
+          centerY = _base2.centerY;
+
+      ctx.strokeStyle = this.game.smoot.color;
+      ctx.beginPath();
+      ctx.moveTo(centerX - radius / 2, centerY);
+      ctx.lineTo(centerX + radius / 2, centerY);
+      ctx.lineTo(centerX + length * Math.cos(angle), centerY - length * Math.sin(angle));
+      ctx.closePath();
+      ctx.fill();
     }
   }, {
     key: 'fireSmoot',
@@ -930,7 +967,7 @@ var SmootSpace = function () {
   function SmootSpace(options) {
     _classCallCheck(this, SmootSpace);
 
-    this.color = options.color || _settings2.default.SMOOT.COLORS[Math.floor(Math.random() * _settings2.default.SMOOT.COLORS.length)];
+    this.color = options.color || "white";
     this.centerPos = options.centerPos;
     this.gridPos = options.gridPos;
     this.radius = options.radius || _settings2.default.SMOOT.RADIUS;
@@ -938,8 +975,22 @@ var SmootSpace = function () {
   }
 
   _createClass(SmootSpace, [{
-    key: 'draw',
-    value: function draw(ctx) {}
+    key: "draw",
+    value: function draw(ctx) {
+      // this.drawBlanks();
+      this.drawWhiteCircle(ctx);
+    }
+  }, {
+    key: "drawBlanks",
+    value: function drawBlanks() {}
+  }, {
+    key: "drawWhiteCircle",
+    value: function drawWhiteCircle(ctx) {
+      ctx.fillStyle = this.color;
+      ctx.beginPath();
+      ctx.arc(this.centerPos[0], this.centerPos[1], this.radius, 0, Math.PI * 2);
+      ctx.fill();
+    }
   }]);
 
   return SmootSpace;
