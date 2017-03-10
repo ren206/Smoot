@@ -97,7 +97,7 @@ exports.default = {
 
   // Cannon settings
   CANNON: {
-    FIREPOWER: 15,
+    FIREPOWER: 20,
     RADIUS: 30
   },
 
@@ -109,6 +109,10 @@ exports.default = {
   },
 
   SMOOT_SPACE: {
+    COLOR: "gray"
+  },
+
+  TEXT: {
     COLOR: "gray"
   }
 
@@ -349,10 +353,10 @@ var Game = function () {
   function Game() {
     _classCallCheck(this, Game);
 
-    this.hasEnded = "";
     this.board = this.newBoard();
     this.smoot = this.generateRandomSmoot();
     this.cannon = this.newCannon();
+    this.hasEnded = "";
   }
 
   _createClass(Game, [{
@@ -372,7 +376,7 @@ var Game = function () {
               this.hangSmoot();
               if (this.hasReachedBottom()) this.endGame();
               this.handleMatches();
-              this.reset();
+              this.reload();
             }
           }
         }
@@ -381,6 +385,7 @@ var Game = function () {
   }, {
     key: 'draw',
     value: function draw(ctx) {
+      ctx.clearRect(0, 0, _settings2.default.BOARD.WIDTH, _settings2.default.BOARD.HEIGHT);
       this.allObjects().forEach(function (object) {
         object.draw(ctx);
       });
@@ -404,7 +409,6 @@ var Game = function () {
     value: function endGame() {
       // TODO: Implement this
       // console.log("Game has ended");
-      debugger;
       this.hasEnded = "loss";
     }
   }, {
@@ -452,11 +456,19 @@ var Game = function () {
       });
     }
   }, {
-    key: 'reset',
-    value: function reset() {
+    key: 'reload',
+    value: function reload() {
       // this.smoot.vel = [0, 0];
       this.board.resetChecks();
       this.smoot = this.generateRandomSmoot();
+    }
+  }, {
+    key: 'reset',
+    value: function reset() {
+      this.board = this.newBoard();
+      this.smoot = this.generateRandomSmoot();
+      this.cannon = this.newCannon();
+      this.hasEnded = "";
     }
   }, {
     key: 'step',
@@ -484,32 +496,101 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+var _settings = __webpack_require__(0);
+
+var _settings2 = _interopRequireDefault(_settings);
+
+var _game = __webpack_require__(4);
+
+var _game2 = _interopRequireDefault(_game);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var GameView = function () {
-  function GameView(game, ctx) {
+  function GameView(canvasElement) {
     _classCallCheck(this, GameView);
 
-    this.game = game;
-    this.ctx = ctx;
-    this.canvas = ctx.canvas;
+    this.game = new _game2.default();
+    this.ctx = canvasElement.getContext('2d');
+    this.canvas = canvasElement;
   }
 
   _createClass(GameView, [{
-    key: "start",
-    value: function start() {
-      this.game.populateGrid();
+    key: 'activateEventListeners',
+    value: function activateEventListeners() {
       this.canvas.addEventListener("mousemove", this.game.cannon.getMousePosition, false);
       // this.canvas.addEventListener("click", this.game.cannon.logMousePosition, false);
       this.canvas.addEventListener("click", this.game.cannon.fireSmoot);
-      requestAnimationFrame(this.animate.bind(this));
+    }
+
+    // animate(resetGameListener) {
+    //   // if (this.game.hasEnded) {
+    //   //   ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+    //   //   ctx.fillRect(0, 0, Settings.BOARD.WIDTH, Settings.BOARD.HEIGHT);
+    //   // }
+    //   if (this.game.hasEnded) {
+    //     this.stop();
+    //     resetGameListener();
+    //   } else {
+    //     this.game.step();
+    //     this.game.draw(this.ctx);
+    //     requestAnimationFrame(this.animate);
+    //   }
+    // }
+
+  }, {
+    key: 'deactivateEventListeners',
+    value: function deactivateEventListeners() {
+      this.canvas.removeEventListener("mousemove", this.game.cannon.getMousePosition);
+      this.canvas.removeEventListener("click", this.game.cannon.fireSmoot);
     }
   }, {
-    key: "animate",
-    value: function animate() {
-      this.game.step();
-      this.game.draw(this.ctx);
-      requestAnimationFrame(this.animate.bind(this));
+    key: 'dimDisplay',
+    value: function dimDisplay() {
+      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+      this.ctx.fillRect(0, 0, _settings2.default.BOARD.WIDTH, _settings2.default.BOARD.HEIGHT);
+    }
+  }, {
+    key: 'drawGameOver',
+    value: function drawGameOver() {
+      var height = _settings2.default.BOARD.HEIGHT;
+      this.ctx.fillStyle = _settings2.default.TEXT.COLOR;
+      this.ctx.font = '36px serif';
+      this.ctx.fillText('Game Over', 20, height - 180);
+      this.ctx.fillText('Try Again?', 20, height - 140);
+      this.ctx.fillText('Press any button...', 20, height - 100);
+    }
+  }, {
+    key: 'reset',
+    value: function reset() {
+      this.game.reset();
+      this.start();
+    }
+  }, {
+    key: 'start',
+    value: function start(resetGameListener) {
+      var _this = this;
+
+      this.activateEventListeners();
+      this.game.populateGrid();
+      var intervalId = setInterval(function () {
+        _this.game.step();
+        _this.game.draw(_this.ctx);
+        if (_this.game.hasEnded) {
+          _this.stop(intervalId);
+          resetGameListener();
+        }
+      }, 10);
+    }
+  }, {
+    key: 'stop',
+    value: function stop(intervalId) {
+      // this.deactivateEventListeners();
+      this.dimDisplay();
+      this.drawGameOver();
+      clearInterval(intervalId);
     }
   }]);
 
@@ -643,7 +724,7 @@ var Board = function () {
         }
 
         this.grid.push(row);
-        var gapCloser = radius / 12;
+        var gapCloser = radius / 14;
         rowPos[1] += diameter - gapCloser;
       }
     }
@@ -1015,8 +1096,8 @@ var SmootSpace = function () {
   _createClass(SmootSpace, [{
     key: 'draw',
     value: function draw(ctx) {
-      // this.drawBlanks();
-      this.drawCircle(ctx);
+      this.drawBlanks();
+      // this.drawCircle(ctx);
     }
   }, {
     key: 'drawBlanks',
@@ -1064,12 +1145,19 @@ document.addEventListener("DOMContentLoaded", function () {
   canvasElement.style.cursor = "none"; // TODO: move to CSS
 
   var ctx = canvasElement.getContext("2d");
-  var game = new _game2.default();
-  var gameView = new _game_view2.default(game, ctx);
-  gameView.start();
+  // const game = new Game();
+  var gameView = new _game_view2.default(canvasElement);
+  gameView.start(resetListener);
 
-  window.game = game;
-  window.gameView = gameView;
+  var resetGameView = function resetGameView() {
+    gameView = new _game_view2.default(canvasElement);
+    gameView.start(resetListener);
+    document.removeEventListener('keypress', resetGameView, false);
+  };
+
+  function resetListener() {
+    document.addEventListener('keypress', resetGameView, false);
+  }
 });
 
 /***/ })
