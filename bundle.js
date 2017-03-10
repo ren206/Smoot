@@ -349,6 +349,7 @@ var Game = function () {
   function Game() {
     _classCallCheck(this, Game);
 
+    this.hasEnded = "";
     this.board = this.newBoard();
     this.smoot = this.generateRandomSmoot();
     this.cannon = this.newCannon();
@@ -402,7 +403,9 @@ var Game = function () {
     key: 'endGame',
     value: function endGame() {
       // TODO: Implement this
-      console.log("Game has ended");
+      // console.log("Game has ended");
+      debugger;
+      this.hasEnded = "loss";
     }
   }, {
     key: 'handleMatches',
