@@ -369,6 +369,7 @@ var Game = function () {
           if (hangingObject instanceof _smoot2.default) {
             if (this.smoot.collidedWithTop() || this.smoot.collidedWith(hangingObject)) {
               this.hangSmoot();
+              if (this.hasReachedBottom()) this.endGame();
               this.handleMatches();
               this.reset();
             }
@@ -398,6 +399,12 @@ var Game = function () {
       this.board.drop(matches);
     }
   }, {
+    key: 'endGame',
+    value: function endGame() {
+      // TODO: Implement this
+      console.log("Game has ended");
+    }
+  }, {
     key: 'handleMatches',
     value: function handleMatches() {
       var matches = this.board.findNeighboringSmootMatches(this.smoot);
@@ -413,6 +420,11 @@ var Game = function () {
     key: 'hangSmoot',
     value: function hangSmoot() {
       this.board.addToGrid(this.smoot);
+    }
+  }, {
+    key: 'hasReachedBottom',
+    value: function hasReachedBottom() {
+      return this.board.hasReachedBottom();
     }
   }, {
     key: 'newBoard',
@@ -766,6 +778,11 @@ var Board = function () {
       });
 
       return positions;
+    }
+  }, {
+    key: 'hasReachedBottom',
+    value: function hasReachedBottom() {
+      return this.game.smoot.gridPos[0] === this.grid.length - 1;
     }
   }, {
     key: 'resetChecks',
