@@ -5,9 +5,26 @@
     <script src="bundle.js">
     </script>
     <title>Smoot</title>
+    <link rel="stylesheet" href="stylesheets/reset.css" />
+    <link rel="stylesheet" href="stylesheets/main.css" />
+    <link href="https://fonts.googleapis.com/css?family=Russo+One" rel="stylesheet">
+
   </head>
   <body>
-    <canvas>
-    </canvas>
+    <h1>Smoot</h1>
+    <canvas></canvas>
+    <div id="instructions" class="modal">
+      <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <h2>Instructions</h2>
+      <ul>
+        <li>Move your mouse to aim, and click to shoot.</li>
+        <li>Clear the Smoots by making 3 or more of a kind.</li>
+        <li>If the Smoots reach the bottom, you lose.</li>
+        <li>Click the X or press any button to start.</li>
+      </ul>
+  </div>
+    </div>
   </body>
+  <script src="lib/modal.js"></script>
 </html>

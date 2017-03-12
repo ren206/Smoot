@@ -81,7 +81,7 @@ exports.default = {
   BOARD: {
     WIDTH: 700,
     HEIGHT: 700,
-    BG_COLOR: 'black',
+    BG_COLOR: '#13438e',
     ROW_SIZE: 13,
     ROW_COUNT: 14,
     FILLED_ROW_COUNT: 6,
@@ -105,7 +105,7 @@ exports.default = {
   SMOOT: {
     RADIUS: 25,
     NUM_COLORS: 6,
-    COLORS: ["red", "green", "blue", "orange", "purple", "silver"]
+    COLORS: ["red", "green", "darkblue", "orange", "purple", "silver"]
   },
 
   SMOOT_SPACE: {
@@ -212,6 +212,13 @@ var Game = function () {
       this.hasEnded = "loss";
     }
   }, {
+    key: 'generateRandomSmoot',
+    value: function generateRandomSmoot() {
+      return new _smoot2.default({
+        centerPos: [_settings2.default.BOARD.WIDTH / 2, _settings2.default.BOARD.HEIGHT + 2]
+      });
+    }
+  }, {
     key: 'handleMatches',
     value: function handleMatches() {
       var matches = this.board.findNeighboringSmootMatches(this.smoot);
@@ -247,13 +254,6 @@ var Game = function () {
     key: 'populateGrid',
     value: function populateGrid() {
       this.board.createGrid();
-    }
-  }, {
-    key: 'generateRandomSmoot',
-    value: function generateRandomSmoot() {
-      return new _smoot2.default({
-        centerPos: [_settings2.default.BOARD.WIDTH / 2, _settings2.default.BOARD.HEIGHT + 2]
-      });
     }
   }, {
     key: 'reload',
@@ -898,7 +898,7 @@ var Cannon = function () {
     key: 'draw',
     value: function draw(ctx) {
       // this.drawCursorPos(ctx, this.borePos);
-      // this.drawCursor(ctx, this.borePos);
+      this.drawCursor(ctx, this.borePos);
 
       this.drawBase(ctx, this.base);
 
@@ -1131,10 +1131,12 @@ document.addEventListener("DOMContentLoaded", function () {
     gameView = new _game_view2.default(canvasElement);
     gameView.start(resetListener);
     document.removeEventListener('keypress', resetGameView, false);
+    document.removeEventListener('click', resetGameView, false);
   };
 
   function resetListener() {
     document.addEventListener('keypress', resetGameView, false);
+    document.addEventListener('click', resetGameView, false);
   }
 });
 
