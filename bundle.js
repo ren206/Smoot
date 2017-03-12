@@ -128,25 +128,162 @@ exports.default = {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-var getElement = exports.getElement = function getElement() {
-  return document.getElementsByTagName("canvas")[0];
-};
 
-// const element = document.getElementsByTagName("canvas")[0];
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var getBorders = exports.getBorders = function getBorders() {
-  var clientRect = getElement().getBoundingClientRect();
-  return {
-    left: clientRect.left,
-    right: clientRect.right,
-    top: clientRect.top,
-    bottom: clientRect.bottom
-  };
-};
+var _settings = __webpack_require__(0);
 
-var getTopBorder = exports.getTopBorder = function getTopBorder() {
-  return getBorders().top;
-};
+var _settings2 = _interopRequireDefault(_settings);
+
+var _cannon = __webpack_require__(6);
+
+var _cannon2 = _interopRequireDefault(_cannon);
+
+var _board = __webpack_require__(5);
+
+var _board2 = _interopRequireDefault(_board);
+
+var _smoot = __webpack_require__(2);
+
+var _smoot2 = _interopRequireDefault(_smoot);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Game = function () {
+  function Game() {
+    _classCallCheck(this, Game);
+
+    this.board = this.newBoard();
+    this.smoot = this.generateRandomSmoot();
+    this.cannon = this.newCannon();
+    this.hasEnded = "";
+  }
+
+  _createClass(Game, [{
+    key: 'allObjects',
+    value: function allObjects() {
+      return [this.board, this.cannon, this.smoot];
+    }
+  }, {
+    key: 'checkState',
+    value: function checkState() {
+      var hangingObject = void 0;
+      for (var rowIdx = 0; rowIdx < _settings2.default.BOARD.ROW_COUNT; rowIdx++) {
+        for (var slotIdx = 0; slotIdx < _settings2.default.BOARD.ROW_SIZE; slotIdx++) {
+          hangingObject = this.board.grid[rowIdx][slotIdx];
+          if (hangingObject instanceof _smoot2.default) {
+            if (this.smoot.collidedWithTop() || this.smoot.collidedWith(hangingObject)) {
+              this.hangSmoot();
+              if (this.hasReachedBottom()) this.endGame();
+              this.handleMatches();
+              this.reload();
+            }
+          }
+        }
+      }
+    }
+  }, {
+    key: 'draw',
+    value: function draw(ctx) {
+      ctx.clearRect(0, 0, _settings2.default.BOARD.WIDTH, _settings2.default.BOARD.HEIGHT);
+      this.allObjects().forEach(function (object) {
+        object.draw(ctx);
+      });
+
+      // this.drawSmootPos(ctx);
+    }
+  }, {
+    key: 'drawSmootPos',
+    value: function drawSmootPos(ctx) {
+      ctx.fillStyle = "white";
+      ctx.font = '24px serif';
+      ctx.fillText('smootX: ' + this.smoot.centerPos[0].toFixed(1) + ', smootY: ' + this.smoot.centerPos[1].toFixed(1), 20, 50);
+    }
+  }, {
+    key: 'dropMatches',
+    value: function dropMatches(matches) {
+      this.board.drop(matches);
+    }
+  }, {
+    key: 'endGame',
+    value: function endGame() {
+      // TODO: Implement this
+      // console.log("Game has ended");
+      this.hasEnded = "loss";
+    }
+  }, {
+    key: 'handleMatches',
+    value: function handleMatches() {
+      var matches = this.board.findNeighboringSmootMatches(this.smoot);
+      // findChainingSmootMatches(this.smoot);
+
+      // console.log(matches);
+
+      if (matches.length > 2) {
+        this.dropMatches(matches);
+      }
+    }
+  }, {
+    key: 'hangSmoot',
+    value: function hangSmoot() {
+      this.board.addToGrid(this.smoot);
+    }
+  }, {
+    key: 'hasReachedBottom',
+    value: function hasReachedBottom() {
+      return this.board.hasReachedBottom();
+    }
+  }, {
+    key: 'newBoard',
+    value: function newBoard() {
+      return new _board2.default(this);
+    }
+  }, {
+    key: 'newCannon',
+    value: function newCannon() {
+      return new _cannon2.default(this);
+    }
+  }, {
+    key: 'populateGrid',
+    value: function populateGrid() {
+      this.board.createGrid();
+    }
+  }, {
+    key: 'generateRandomSmoot',
+    value: function generateRandomSmoot() {
+      return new _smoot2.default({
+        centerPos: [_settings2.default.BOARD.WIDTH / 2, _settings2.default.BOARD.HEIGHT + 2]
+      });
+    }
+  }, {
+    key: 'reload',
+    value: function reload() {
+      // this.smoot.vel = [0, 0];
+      this.board.resetChecks();
+      this.smoot = this.generateRandomSmoot();
+    }
+  }, {
+    key: 'reset',
+    value: function reset() {
+      this.board = this.newBoard();
+      this.smoot = this.generateRandomSmoot();
+      this.cannon = this.newCannon();
+      this.hasEnded = "";
+    }
+  }, {
+    key: 'step',
+    value: function step() {
+      this.smoot.move();
+      this.checkState();
+    }
+  }]);
+
+  return Game;
+}();
+
+exports.default = Game;
 
 /***/ }),
 /* 2 */
@@ -333,174 +470,7 @@ var _settings = __webpack_require__(0);
 
 var _settings2 = _interopRequireDefault(_settings);
 
-var _cannon = __webpack_require__(7);
-
-var _cannon2 = _interopRequireDefault(_cannon);
-
-var _board = __webpack_require__(6);
-
-var _board2 = _interopRequireDefault(_board);
-
-var _smoot = __webpack_require__(2);
-
-var _smoot2 = _interopRequireDefault(_smoot);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var Game = function () {
-  function Game() {
-    _classCallCheck(this, Game);
-
-    this.board = this.newBoard();
-    this.smoot = this.generateRandomSmoot();
-    this.cannon = this.newCannon();
-    this.hasEnded = "";
-  }
-
-  _createClass(Game, [{
-    key: 'allObjects',
-    value: function allObjects() {
-      return [this.board, this.cannon, this.smoot];
-    }
-  }, {
-    key: 'checkState',
-    value: function checkState() {
-      var hangingObject = void 0;
-      for (var rowIdx = 0; rowIdx < _settings2.default.BOARD.ROW_COUNT; rowIdx++) {
-        for (var slotIdx = 0; slotIdx < _settings2.default.BOARD.ROW_SIZE; slotIdx++) {
-          hangingObject = this.board.grid[rowIdx][slotIdx];
-          if (hangingObject instanceof _smoot2.default) {
-            if (this.smoot.collidedWithTop() || this.smoot.collidedWith(hangingObject)) {
-              this.hangSmoot();
-              if (this.hasReachedBottom()) this.endGame();
-              this.handleMatches();
-              this.reload();
-            }
-          }
-        }
-      }
-    }
-  }, {
-    key: 'draw',
-    value: function draw(ctx) {
-      ctx.clearRect(0, 0, _settings2.default.BOARD.WIDTH, _settings2.default.BOARD.HEIGHT);
-      this.allObjects().forEach(function (object) {
-        object.draw(ctx);
-      });
-
-      // this.drawSmootPos(ctx);
-    }
-  }, {
-    key: 'drawSmootPos',
-    value: function drawSmootPos(ctx) {
-      ctx.fillStyle = "white";
-      ctx.font = '24px serif';
-      ctx.fillText('smootX: ' + this.smoot.centerPos[0].toFixed(1) + ', smootY: ' + this.smoot.centerPos[1].toFixed(1), 20, 50);
-    }
-  }, {
-    key: 'dropMatches',
-    value: function dropMatches(matches) {
-      this.board.drop(matches);
-    }
-  }, {
-    key: 'endGame',
-    value: function endGame() {
-      // TODO: Implement this
-      // console.log("Game has ended");
-      this.hasEnded = "loss";
-    }
-  }, {
-    key: 'handleMatches',
-    value: function handleMatches() {
-      var matches = this.board.findNeighboringSmootMatches(this.smoot);
-      // findChainingSmootMatches(this.smoot);
-
-      // console.log(matches);
-
-      if (matches.length > 2) {
-        this.dropMatches(matches);
-      }
-    }
-  }, {
-    key: 'hangSmoot',
-    value: function hangSmoot() {
-      this.board.addToGrid(this.smoot);
-    }
-  }, {
-    key: 'hasReachedBottom',
-    value: function hasReachedBottom() {
-      return this.board.hasReachedBottom();
-    }
-  }, {
-    key: 'newBoard',
-    value: function newBoard() {
-      return new _board2.default(this);
-    }
-  }, {
-    key: 'newCannon',
-    value: function newCannon() {
-      return new _cannon2.default(this);
-    }
-  }, {
-    key: 'populateGrid',
-    value: function populateGrid() {
-      this.board.createGrid();
-    }
-  }, {
-    key: 'generateRandomSmoot',
-    value: function generateRandomSmoot() {
-      return new _smoot2.default({
-        centerPos: [_settings2.default.BOARD.WIDTH / 2, _settings2.default.BOARD.HEIGHT + 2]
-      });
-    }
-  }, {
-    key: 'reload',
-    value: function reload() {
-      // this.smoot.vel = [0, 0];
-      this.board.resetChecks();
-      this.smoot = this.generateRandomSmoot();
-    }
-  }, {
-    key: 'reset',
-    value: function reset() {
-      this.board = this.newBoard();
-      this.smoot = this.generateRandomSmoot();
-      this.cannon = this.newCannon();
-      this.hasEnded = "";
-    }
-  }, {
-    key: 'step',
-    value: function step() {
-      this.smoot.move();
-      this.checkState();
-    }
-  }]);
-
-  return Game;
-}();
-
-exports.default = Game;
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _settings = __webpack_require__(0);
-
-var _settings2 = _interopRequireDefault(_settings);
-
-var _game = __webpack_require__(4);
+var _game = __webpack_require__(1);
 
 var _game2 = _interopRequireDefault(_game);
 
@@ -524,22 +494,6 @@ var GameView = function () {
       // this.canvas.addEventListener("click", this.game.cannon.logMousePosition, false);
       this.canvas.addEventListener("click", this.game.cannon.fireSmoot);
     }
-
-    // animate(resetGameListener) {
-    //   // if (this.game.hasEnded) {
-    //   //   ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-    //   //   ctx.fillRect(0, 0, Settings.BOARD.WIDTH, Settings.BOARD.HEIGHT);
-    //   // }
-    //   if (this.game.hasEnded) {
-    //     this.stop();
-    //     resetGameListener();
-    //   } else {
-    //     this.game.step();
-    //     this.game.draw(this.ctx);
-    //     requestAnimationFrame(this.animate);
-    //   }
-    // }
-
   }, {
     key: 'deactivateEventListeners',
     value: function deactivateEventListeners() {
@@ -600,7 +554,7 @@ var GameView = function () {
 exports.default = GameView;
 
 /***/ }),
-/* 6 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -887,7 +841,7 @@ var Board = function () {
 exports.default = Board;
 
 /***/ }),
-/* 7 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -899,7 +853,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _my_canvas = __webpack_require__(1);
+var _my_canvas = __webpack_require__(7);
 
 var MyCanvas = _interopRequireWildcard(_my_canvas);
 
@@ -1062,6 +1016,36 @@ var Cannon = function () {
 exports.default = Cannon;
 
 /***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var getElement = exports.getElement = function getElement() {
+  return document.getElementsByTagName("canvas")[0];
+};
+
+// const element = document.getElementsByTagName("canvas")[0];
+
+var getBorders = exports.getBorders = function getBorders() {
+  var clientRect = getElement().getBoundingClientRect();
+  return {
+    left: clientRect.left,
+    right: clientRect.right,
+    top: clientRect.top,
+    bottom: clientRect.bottom
+  };
+};
+
+var getTopBorder = exports.getTopBorder = function getTopBorder() {
+  return getBorders().top;
+};
+
+/***/ }),
 /* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1124,11 +1108,11 @@ exports.default = SmootSpace;
 "use strict";
 
 
-var _game_view = __webpack_require__(5);
+var _game_view = __webpack_require__(4);
 
 var _game_view2 = _interopRequireDefault(_game_view);
 
-var _game = __webpack_require__(4);
+var _game = __webpack_require__(1);
 
 var _game2 = _interopRequireDefault(_game);
 
