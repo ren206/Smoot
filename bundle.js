@@ -209,8 +209,6 @@ var Game = function () {
   }, {
     key: 'endGame',
     value: function endGame() {
-      // TODO: Implement this
-      // console.log("Game has ended");
       this.hasEnded = "loss";
     }
   }, {
