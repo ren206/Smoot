@@ -6,12 +6,18 @@ body {
   flex-direction: column;
   align-items: center;
   font-family: 'Russo One', sans-serif;
+  color: #aaafb7;
+  
+  user-select: none;
+        -moz-user-select: none;
+        -khtml-user-select: none;
+        -webkit-user-select: none;
+        -o-user-select: none;
 }
 
 body h1 {
   font-size: 50px;
   font-weight: bold;
-  color: white;
   text-transform: uppercase;
 }
 
@@ -32,6 +38,7 @@ body h1 {
   width: 700px;
   height: 700px;
   border: solid 1px #30486d;
+  color: black;
 }
 
 .modal-content h2 {
@@ -45,7 +52,6 @@ body h1 {
   justify-content: space-around;
   height: 80%;
   font-size: 36px;
-  color: black;
 }
 
 .close-modal {

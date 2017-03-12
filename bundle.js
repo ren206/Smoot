@@ -109,11 +109,11 @@ exports.default = {
   },
 
   SMOOT_SPACE: {
-    COLOR: "gray"
+    COLOR: "#aaafb7"
   },
 
   TEXT: {
-    COLOR: "gray"
+    COLOR: "#aaafb7"
   }
 
 };
@@ -258,7 +258,6 @@ var Game = function () {
   }, {
     key: 'reload',
     value: function reload() {
-      // this.smoot.vel = [0, 0];
       this.board.resetChecks();
       this.smoot = this.generateRandomSmoot();
     }
@@ -509,10 +508,10 @@ var GameView = function () {
     value: function drawGameOver() {
       var height = _settings2.default.BOARD.HEIGHT;
       this.ctx.fillStyle = _settings2.default.TEXT.COLOR;
-      this.ctx.font = '36px serif';
+      this.ctx.font = '36px "Russo One"';
       this.ctx.fillText('Game Over', 20, height - 180);
       this.ctx.fillText('Try Again?', 20, height - 140);
-      this.ctx.fillText('Press any button...', 20, height - 100);
+      this.ctx.fillText('Click anywhere or press any button...', 20, height - 100);
     }
   }, {
     key: 'reset',
