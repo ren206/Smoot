@@ -81,7 +81,8 @@ exports.default = {
   BOARD: {
     WIDTH: 700,
     HEIGHT: 700,
-    BG_COLOR: '#05214f',
+    // BG_COLOR: '#182838',
+    BG_COLOR: '#000',
     ROW_SIZE: 13,
     ROW_COUNT: 14,
     FILLED_ROW_COUNT: 6,
@@ -105,7 +106,12 @@ exports.default = {
   SMOOT: {
     RADIUS: 25,
     NUM_COLORS: 6,
-    COLORS: ["red", "green", "darkblue", "orange", "purple", "silver"]
+    COLORS: ['#b73131', // "red",
+    '#33b72e', // "green",
+    '#2d44b7', // "darkblue",
+    '#b78530', // "orange",
+    '#6f2db7', // "purple",
+    '#2db7ab']
   },
 
   SMOOT_SPACE: {
