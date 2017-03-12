@@ -81,7 +81,7 @@ exports.default = {
   BOARD: {
     WIDTH: 700,
     HEIGHT: 700,
-    BG_COLOR: '#13438e',
+    BG_COLOR: '#05214f',
     ROW_SIZE: 13,
     ROW_COUNT: 14,
     FILLED_ROW_COUNT: 6,
