@@ -1,6 +1,6 @@
 body {
-  background-image: radial-gradient(ellipse, #535353 -20%, #090909 50%);
-  background-color: #535353;
+  /*background-image: radial-gradient(ellipse, #535353 -20%, #090909 50%);*/
+  background: url(../space-bg.jpg) black;
   background-repeat: no-repeat;
   background-size: 100%;
   width: 100vw;
