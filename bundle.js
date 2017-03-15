@@ -107,7 +107,7 @@ exports.default = {
   // Smoot settings
   SMOOT: {
     RADIUS: 25,
-    NUM_COLORS: 6,
+    NUM_COLORS: 3,
     COLORS: ['#b73131', // "red",
     '#33b72e', // "green",
     '#2d44b7', // "darkblue",
@@ -723,18 +723,35 @@ var Board = function () {
         });
       });
     }
+
+    // matches are positions
+    // drop(matches) {
+    //   let matchedSmoot;
+    //   let centerPos;
+    //   matches.forEach((pos) => {
+    //     matchedSmoot = this.grid[pos[0]][pos[1]];
+    //     centerPos = matchedSmoot.centerPos;
+    //     this.grid[pos[0]][pos[1]] = new SmootSpace({
+    //       gridPos: [pos[0], pos[1]],
+    //       centerPos
+    //     });
+    //   })
+    // }
+
+    // matches are smoots
+
   }, {
     key: 'drop',
     value: function drop(matches) {
       var _this = this;
 
-      var matchedSmoot = void 0;
+      var gridPos = void 0;
       var centerPos = void 0;
-      matches.forEach(function (pos) {
-        matchedSmoot = _this.grid[pos[0]][pos[1]];
-        centerPos = matchedSmoot.centerPos;
-        _this.grid[pos[0]][pos[1]] = new _smoot_space2.default({
-          gridPos: [pos[0], pos[1]],
+      matches.forEach(function (smoot) {
+        gridPos = smoot.gridPos;
+        centerPos = smoot.centerPos;
+        _this.grid[gridPos[0]][gridPos[1]] = new _smoot_space2.default({
+          gridPos: [gridPos[0], gridPos[1]],
           centerPos: centerPos
         });
       });
@@ -762,12 +779,15 @@ var Board = function () {
 
       return [closestPos, gridPos];
     }
+
+    // change to return smoots instead of positions
+
   }, {
     key: 'findNeighboringSmootMatches',
     value: function findNeighboringSmootMatches(smoot) {
       var _this2 = this;
 
-      // let matchingSmoots = [];
+      var matchingSmoots = [];
       var smootGridPos = smoot.gridPos;
       var matchingPositions = [smootGridPos];
       var neighborGridPositions = this.getNeighborGridPositions(smootGridPos);
@@ -784,17 +804,15 @@ var Board = function () {
         // check for matches
         if (!neighborSmoot.isChecked && smoot.matchesWith(neighborSmoot)) {
 
-          // let matchingNeighborPositions = this.findNeighboringSmootMatches(neighborSmoot);
-
-          if (!matchingPositions.includes(smootNeighborPos)) matchingPositions.push(smootNeighborPos);
-          // matchingPositions.concat(matchingNeighborPositions);
-          // debugger
+          // if (!matchingPositions.includes(smootNeighborPos)) matchingPositions.push(smootNeighborPos);
+          if (!matchingSmoots.includes(neighborSmoot)) matchingSmoots.push(neighborSmoot);
         }
       });
 
-      // return an array of matchingPositions
-      // console.log(matchingPositions);
-      return matchingPositions;
+      // return matchingPositions;
+
+      // return an array of smoots
+      return matchingSmoots;
     }
   }, {
     key: 'getNeighborGridPositions',
