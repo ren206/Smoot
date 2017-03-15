@@ -99,7 +99,9 @@ exports.default = {
   // Cannon settings
   CANNON: {
     FIREPOWER: 20,
-    RADIUS: 30
+    RADIUS: 30,
+    LENGTH: 60,
+    WIDTH: 30
   },
 
   // Smoot settings
@@ -882,8 +884,8 @@ var Cannon = function () {
     };
 
     this.boreSize = {
-      length: this.base.radius * 2,
-      width: 5
+      length: _settings2.default.CANNON.LENGTH,
+      width: _settings2.default.CANNON.WIDTH
     };
 
     this.borePos = {
@@ -907,8 +909,8 @@ var Cannon = function () {
 
       this.drawBase(ctx, this.base);
 
-      // this.drawLineBore(ctx, this.boreSize, this.borePos);
-      this.drawTriangleBore(ctx, this.boreSize, this.borePos);
+      this.drawLineBore(ctx, this.boreSize, this.borePos);
+      // this.drawTriangleBore(ctx, this.boreSize, this.borePos);
     }
   }, {
     key: 'drawCursor',
@@ -957,9 +959,16 @@ var Cannon = function () {
           centerY = _base.centerY;
 
       ctx.strokeStyle = this.game.smoot.color;
+      ctx.lineWidth = this.boreSize.width;
       ctx.beginPath();
       ctx.moveTo(centerX, centerY);
       ctx.lineTo(centerX + length * Math.cos(angle), centerY - length * Math.sin(angle));
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(centerX + 1.05 * length * Math.cos(angle), centerY - 1.05 * length * Math.sin(angle));
+      // ctx.strokeStyle = String(Int(this.game.smoot.color) + 10);
+      ctx.lineTo(centerX + 1.1 * length * Math.cos(angle), centerY - 1.1 * length * Math.sin(angle));
       ctx.stroke();
     }
   }, {
