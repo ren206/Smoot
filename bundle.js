@@ -93,7 +93,7 @@ exports.default = {
 
   // Bottom line settings
   BOTTOM: {
-    COLOR: "red"
+    COLOR: "#aa1111"
   },
 
   // Cannon settings
@@ -545,8 +545,8 @@ var Board = function () {
   }, {
     key: 'draw',
     value: function draw(ctx) {
-      this.drawBackgroundNonTrailing(ctx);
-      // this.drawBackgroundTrailing(ctx);
+      // this.drawBackgroundNonTrailing(ctx);
+      this.BackgroundClear(ctx);
       this.drawGrid(ctx);
       this.drawBottom(ctx);
       // this.drawBottomLine(ctx);
@@ -559,9 +559,9 @@ var Board = function () {
       ctx.fillRect(0, 0, _settings2.default.BOARD.WIDTH, _settings2.default.BOARD.HEIGHT);
     }
   }, {
-    key: 'drawBackgroundTrailing',
-    value: function drawBackgroundTrailing(ctx) {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+    key: 'BackgroundClear',
+    value: function BackgroundClear(ctx) {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
       ctx.fillRect(0, 0, _settings2.default.BOARD.WIDTH, _settings2.default.BOARD.HEIGHT);
     }
   }, {
