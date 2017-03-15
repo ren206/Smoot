@@ -79,21 +79,22 @@ Object.defineProperty(exports, "__esModule", {
 exports.default = {
   // Board settings
   BOARD: {
-    WIDTH: 700,
-    HEIGHT: 700,
+    WIDTH: 690,
+    HEIGHT: 600,
     // BG_COLOR: '#182838',
     BG_COLOR: '#000',
     ROW_SIZE: 13,
-    ROW_COUNT: 14,
+    ROW_COUNT: 13,
     FILLED_ROW_COUNT: 6,
-    OFFSET: 12,
+    OFFSET: 10,
     GRID_DIRECTIONS_LEFT: [[-1, -1], [-1, 0], [0, -1], [0, 1], [1, -1], [1, 0]],
     GRID_DIRECTIONS_RIGHT: [[-1, 0], [-1, 1], [0, -1], [0, 1], [1, 0], [1, 1]]
   },
 
   // Bottom line settings
   BOTTOM: {
-    COLOR: "#aa1111"
+    COLOR: "#280554",
+    HEIGHT: 40
   },
 
   // Cannon settings
@@ -563,8 +564,8 @@ var Board = function () {
     value: function draw(ctx) {
       // this.drawBackgroundNonTrailing(ctx);
       this.drawBackgroundClear(ctx);
-      this.drawGrid(ctx);
       this.drawBottom(ctx);
+      this.drawGrid(ctx);
       // this.drawBottomLine(ctx);
     }
   }, {
@@ -577,21 +578,21 @@ var Board = function () {
   }, {
     key: 'drawBackgroundClear',
     value: function drawBackgroundClear(ctx) {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
       ctx.fillRect(0, 0, _settings2.default.BOARD.WIDTH, _settings2.default.BOARD.HEIGHT);
     }
   }, {
     key: 'drawBottom',
     value: function drawBottom(ctx) {
       ctx.fillStyle = _settings2.default.BOTTOM.COLOR;
-      ctx.fillRect(0, _settings2.default.BOARD.HEIGHT - _settings2.default.CANNON.RADIUS, _settings2.default.BOARD.WIDTH, _settings2.default.BOARD.HEIGHT);
+      ctx.fillRect(0, _settings2.default.BOARD.HEIGHT - _settings2.default.BOTTOM.HEIGHT, _settings2.default.BOARD.WIDTH, _settings2.default.BOARD.HEIGHT);
     }
   }, {
     key: 'drawBottomLine',
     value: function drawBottomLine(ctx) {
       ctx.strokeStyle = _settings2.default.BOTTOM.COLOR;
       ctx.beginPath();
-      var lineHeight = _settings2.default.BOARD.HEIGHT - _settings2.default.CANNON.RADIUS;
+      var lineHeight = _settings2.default.BOTTM.HEIGHT;
       ctx.moveTo(0, lineHeight);
       ctx.lineTo(_settings2.default.BOARD.WIDTH, lineHeight);
       ctx.stroke();

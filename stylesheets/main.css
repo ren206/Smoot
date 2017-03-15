@@ -62,7 +62,7 @@ body h1 {
   position: fixed;
   right: calc((100% - 700px)/2);
   cursor: pointer;
-  font-size: 55px;
+  font-size: 44px;
   -webkit-animation: pulsate 1.5s ease-out;
   -webkit-animation-iteration-count: infinite;
 }
