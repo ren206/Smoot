@@ -93,7 +93,7 @@ exports.default = {
 
   // Bottom line settings
   BOTTOM: {
-    COLOR: "pink"
+    COLOR: "red"
   },
 
   // Cannon settings
@@ -164,7 +164,7 @@ var Game = function () {
     _classCallCheck(this, Game);
 
     this.board = this.newBoard();
-    this.smoot = this.generateRandomSmoot();
+    this.smoot = this.loadRandomSmoot();
     this.cannon = this.newCannon();
     this.hasEnded = "";
   }
@@ -217,11 +217,10 @@ var Game = function () {
       this.board.drop(objectsToDrop);
     }
   }, {
-    key: 'generateRandomSmoot',
-    value: function generateRandomSmoot() {
-      return new _smoot2.default({
-        centerPos: [_settings2.default.BOARD.WIDTH / 2, _settings2.default.BOARD.HEIGHT + 2]
-      });
+    key: 'getRandomColor',
+    value: function getRandomColor() {
+      var numColors = _settings2.default.SMOOT.NUM_COLORS;
+      return _settings2.default.SMOOT.COLORS[Math.floor(Math.random() * numColors)];
     }
   }, {
     key: 'handleFloatingGroups',
@@ -252,6 +251,14 @@ var Game = function () {
       return this.board.hasReachedBottom();
     }
   }, {
+    key: 'loadRandomSmoot',
+    value: function loadRandomSmoot() {
+      return new _smoot2.default({
+        centerPos: [_settings2.default.BOARD.WIDTH / 2, _settings2.default.BOARD.HEIGHT + 2],
+        color: this.getRandomColor()
+      });
+    }
+  }, {
     key: 'loseGame',
     value: function loseGame() {
       this.hasEnded = "lost";
@@ -274,13 +281,13 @@ var Game = function () {
   }, {
     key: 'reload',
     value: function reload() {
-      this.smoot = this.generateRandomSmoot();
+      this.smoot = this.loadRandomSmoot();
     }
   }, {
     key: 'reset',
     value: function reset() {
       this.board = this.newBoard();
-      this.smoot = this.generateRandomSmoot();
+      this.smoot = this.loadRandomSmoot();
       this.cannon = this.newCannon();
       this.hasEnded = "";
     }
@@ -496,7 +503,8 @@ var Board = function () {
               newSmoot = new _smoot2.default({
                 // needs another copy for each slot
                 centerPos: slotPos.slice(),
-                gridPos: [rowIdx, slotIdx]
+                gridPos: [rowIdx, slotIdx],
+                color: this.getRandomColor()
               });
             } else {
               newSmoot = new _smoot_space2.default({
@@ -516,7 +524,8 @@ var Board = function () {
             newSmoot = new _smoot2.default({
               // needs another copy for each slot
               centerPos: slotPos.slice(),
-              gridPos: [rowIdx, slotIdx]
+              gridPos: [rowIdx, slotIdx],
+              color: this.getRandomColor()
             });
           } else {
             newSmoot = new _smoot_space2.default({
@@ -539,8 +548,8 @@ var Board = function () {
       this.drawBackgroundNonTrailing(ctx);
       // this.drawBackgroundTrailing(ctx);
       this.drawGrid(ctx);
-      // this.drawBottom(ctx);
-      this.drawBottomLine(ctx);
+      this.drawBottom(ctx);
+      // this.drawBottomLine(ctx);
     }
   }, {
     key: 'drawBackgroundNonTrailing',
@@ -558,12 +567,8 @@ var Board = function () {
   }, {
     key: 'drawBottom',
     value: function drawBottom(ctx) {
-      ctx.strokeStyle = _settings2.default.BOTTOM.COLOR;
-      ctx.beginPath();
-      var lineHeight = _settings2.default.BOARD.HEIGHT - _settings2.default.CANNON.RADIUS;
-      ctx.moveTo(0, lineHeight);
-      ctx.lineTo(_settings2.default.BOARD.WIDTH, lineHeight);
-      ctx.stroke();
+      ctx.fillStyle = _settings2.default.BOTTOM.COLOR;
+      ctx.fillRect(0, _settings2.default.BOARD.HEIGHT - _settings2.default.CANNON.RADIUS, _settings2.default.BOARD.WIDTH, _settings2.default.BOARD.HEIGHT);
     }
   }, {
     key: 'drawBottomLine',
@@ -717,6 +722,11 @@ var Board = function () {
       });
 
       return positions;
+    }
+  }, {
+    key: 'getRandomColor',
+    value: function getRandomColor() {
+      return this.game.getRandomColor();
     }
   }, {
     key: 'hasReachedBottom',
@@ -997,10 +1007,10 @@ var Smoot = function () {
 
     // this.canvasElement = MyCanvas.getElement();
     // this.canvasBorders = MyCanvas.getBorders();
-    this.color = options.color || this.getRandomColor();
+    this.color = options.color;
     this.centerPos = options.centerPos;
     this.gridPos = options.gridPos;
-    this.radius = options.radius || _settings2.default.SMOOT.RADIUS;
+    this.radius = _settings2.default.SMOOT.RADIUS;
     this.vel = options.vel || [0, 0];
 
     // this.happy = Math.random() < 0.5 ? true : false;
@@ -1065,12 +1075,12 @@ var Smoot = function () {
       ctx.lineWidth = 2;
       ctx.fillStyle = "black", ctx.fill();
     }
-  }, {
-    key: 'getRandomColor',
-    value: function getRandomColor() {
-      var numColors = _settings2.default.SMOOT.NUM_COLORS;
-      return _settings2.default.SMOOT.COLORS[Math.floor(Math.random() * numColors)];
-    }
+
+    // getRandomColor() {
+    //   const numColors = Settings.SMOOT.NUM_COLORS;
+    //   return Settings.SMOOT.COLORS[Math.floor(Math.random() * numColors)];
+    // }
+
   }, {
     key: 'isCollidedWith',
     value: function isCollidedWith(anotherSmoot) {
@@ -1209,7 +1219,7 @@ var SmootSpace = function () {
     this.color = options.color || _settings2.default.SMOOT_SPACE.COLOR;
     this.centerPos = options.centerPos;
     this.gridPos = options.gridPos;
-    this.radius = options.radius || _settings2.default.SMOOT.RADIUS;
+    this.radius = _settings2.default.SMOOT.RADIUS;
     this.vel = options.vel || [0, 0];
   }
 
