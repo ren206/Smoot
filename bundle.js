@@ -184,7 +184,10 @@ var Game = function () {
           if (hangingObject instanceof _smoot2.default) {
             if (this.smoot.isCollidedWithTop() || this.smoot.isCollidedWith(hangingObject)) {
               this.hangSmoot();
-              if (this.hasReachedBottom()) this.loseGame();
+              if (this.hasReachedBottom()) {
+                this.loseGame();
+                return;
+              }
               this.handleMatches();
               // this.handleFloatingGroups();
               this.reload();
@@ -262,6 +265,7 @@ var Game = function () {
     key: 'loseGame',
     value: function loseGame() {
       this.hasEnded = "lost";
+      this.board.changeColors();
     }
   }, {
     key: 'newBoard',
@@ -482,6 +486,18 @@ var Board = function () {
       this.grid[gridPos[0]][gridPos[1]] = smoot;
     }
   }, {
+    key: 'changeColors',
+    value: function changeColors() {
+      this.grid.forEach(function (row) {
+        row.forEach(function (item) {
+          if (item instanceof _smoot2.default) {
+            item.color = _settings2.default.SMOOT_SPACE.COLOR;
+            item.sad = true;
+          }
+        });
+      });
+    }
+  }, {
     key: 'createGrid',
     value: function createGrid() {
       var radius = _settings2.default.SMOOT.RADIUS;
@@ -546,7 +562,7 @@ var Board = function () {
     key: 'draw',
     value: function draw(ctx) {
       // this.drawBackgroundNonTrailing(ctx);
-      this.BackgroundClear(ctx);
+      this.drawBackgroundClear(ctx);
       this.drawGrid(ctx);
       this.drawBottom(ctx);
       // this.drawBottomLine(ctx);
@@ -559,9 +575,9 @@ var Board = function () {
       ctx.fillRect(0, 0, _settings2.default.BOARD.WIDTH, _settings2.default.BOARD.HEIGHT);
     }
   }, {
-    key: 'BackgroundClear',
-    value: function BackgroundClear(ctx) {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+    key: 'drawBackgroundClear',
+    value: function drawBackgroundClear(ctx) {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
       ctx.fillRect(0, 0, _settings2.default.BOARD.WIDTH, _settings2.default.BOARD.HEIGHT);
     }
   }, {
@@ -1013,7 +1029,8 @@ var Smoot = function () {
     this.radius = _settings2.default.SMOOT.RADIUS;
     this.vel = options.vel || [0, 0];
 
-    // this.happy = Math.random() < 0.5 ? true : false;
+    // this.sad = Math.random() < 0.5 ? true : false;
+    this.sad = Boolean(this.centerPos[1] >= _settings2.default.BOARD.HEIGHT / 3);
   }
 
   _createClass(Smoot, [{
@@ -1033,7 +1050,6 @@ var Smoot = function () {
   }, {
     key: 'drawFace',
     value: function drawFace(ctx) {
-      var happy = Boolean(this.centerPos[1] < _settings2.default.BOARD.HEIGHT / 2);
 
       // left eye
       ctx.fillStyle = "black";
@@ -1061,7 +1077,7 @@ var Smoot = function () {
           mouthEnd = void 0,
           centerOffset = void 0;
 
-      var _ref = happy ? [0, Math.PI, this.radius / 4] : [Math.PI, 0, this.radius / 1.25];
+      var _ref = this.sad ? [Math.PI, 0, this.radius / 1.25] : [0, Math.PI, this.radius / 4];
 
       var _ref2 = _slicedToArray(_ref, 3);
 
@@ -1114,6 +1130,7 @@ var Smoot = function () {
 
       this.centerPos[0] += this.vel[0];
       this.centerPos[1] += this.vel[1];
+      this.sad = Boolean(this.centerPos[1] >= _settings2.default.BOARD.HEIGHT / 3);
     }
   }, {
     key: 'resetCheck',
@@ -1216,7 +1233,7 @@ var SmootSpace = function () {
   function SmootSpace(options) {
     _classCallCheck(this, SmootSpace);
 
-    this.color = options.color || _settings2.default.SMOOT_SPACE.COLOR;
+    this.color = _settings2.default.SMOOT_SPACE.COLOR;
     this.centerPos = options.centerPos;
     this.gridPos = options.gridPos;
     this.radius = _settings2.default.SMOOT.RADIUS;
