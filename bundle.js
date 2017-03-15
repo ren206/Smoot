@@ -92,7 +92,7 @@ exports.default = {
   },
 
   // Bottom line settings
-  BOTTOM_LINE: {
+  BOTTOM: {
     COLOR: "pink"
   },
 
@@ -107,7 +107,7 @@ exports.default = {
   // Smoot settings
   SMOOT: {
     RADIUS: 25,
-    NUM_COLORS: 2,
+    NUM_COLORS: 6,
     COLORS: ['#b73131', // "red",
     '#33b72e', // "green",
     '#2d44b7', // "darkblue",
@@ -698,6 +698,7 @@ var Board = function () {
       this.drawBackgroundNonTrailing(ctx);
       // this.drawBackgroundTrailing(ctx);
       this.drawGrid(ctx);
+      // this.drawBottom(ctx);
       this.drawBottomLine(ctx);
     }
   }, {
@@ -714,9 +715,19 @@ var Board = function () {
       ctx.fillRect(0, 0, _settings2.default.BOARD.WIDTH, _settings2.default.BOARD.HEIGHT);
     }
   }, {
+    key: 'drawBottom',
+    value: function drawBottom(ctx) {
+      ctx.strokeStyle = _settings2.default.BOTTOM.COLOR;
+      ctx.beginPath();
+      var lineHeight = _settings2.default.BOARD.HEIGHT - _settings2.default.CANNON.RADIUS;
+      ctx.moveTo(0, lineHeight);
+      ctx.lineTo(_settings2.default.BOARD.WIDTH, lineHeight);
+      ctx.stroke();
+    }
+  }, {
     key: 'drawBottomLine',
     value: function drawBottomLine(ctx) {
-      ctx.strokeStyle = _settings2.default.BOTTOM_LINE.COLOR;
+      ctx.strokeStyle = _settings2.default.BOTTOM.COLOR;
       ctx.beginPath();
       var lineHeight = _settings2.default.BOARD.HEIGHT - _settings2.default.CANNON.RADIUS;
       ctx.moveTo(0, lineHeight);
@@ -732,20 +743,6 @@ var Board = function () {
         });
       });
     }
-
-    // matches are positions
-    // drop(matches) {
-    //   let matchedSmoot;
-    //   let centerPos;
-    //   matches.forEach((pos) => {
-    //     matchedSmoot = this.grid[pos[0]][pos[1]];
-    //     centerPos = matchedSmoot.centerPos;
-    //     this.grid[pos[0]][pos[1]] = new SmootSpace({
-    //       gridPos: [pos[0], pos[1]],
-    //       centerPos
-    //     });
-    //   })
-    // }
 
     // matches are smoots
 
@@ -813,8 +810,6 @@ var Board = function () {
         // check for matches
         if (!neighborSmoot.isChecked && smoot.matchesWith(neighborSmoot)) {
 
-          // if (!matchingPositions.includes(smootNeighborPos)) matchingPositions.push(smootNeighborPos);
-          // if (!matchingSmoots.includes(neighborSmoot)) matchingSmoots.push(neighborSmoot);
           if (!matchingSmoots.includes(neighborSmoot)) {
             // check each one recursively
             _this2.findNeighboringSmootMatches(neighborSmoot).forEach(function (smoot) {
@@ -823,8 +818,6 @@ var Board = function () {
           }
         }
       });
-
-      // return matchingPositions;
 
       // return an array of smoots
       return matchingSmoots;
