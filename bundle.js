@@ -107,7 +107,7 @@ exports.default = {
   // Smoot settings
   SMOOT: {
     RADIUS: 25,
-    NUM_COLORS: 3,
+    NUM_COLORS: 6,
     COLORS: ['#b73131', // "red",
     '#33b72e', // "green",
     '#2d44b7', // "darkblue",
