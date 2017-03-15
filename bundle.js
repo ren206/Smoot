@@ -332,7 +332,7 @@ var Smoot = function () {
     this.radius = options.radius || _settings2.default.SMOOT.RADIUS;
     this.vel = options.vel || [0, 0];
 
-    this.happy = Math.random() < 0.5 ? true : false;
+    // this.happy = Math.random() < 0.5 ? true : false;
   }
 
   _createClass(Smoot, [{
@@ -364,6 +364,8 @@ var Smoot = function () {
   }, {
     key: 'drawFace',
     value: function drawFace(ctx) {
+      var happy = Boolean(this.centerPos[1] < _settings2.default.BOARD.HEIGHT / 2);
+
       // left eye
       ctx.fillStyle = "black";
       ctx.beginPath();
@@ -390,7 +392,7 @@ var Smoot = function () {
           mouthEnd = void 0,
           centerOffset = void 0;
 
-      var _ref = this.happy ? [0, Math.PI, this.radius / 4] : [Math.PI, 0, this.radius / 1.25];
+      var _ref = happy ? [0, Math.PI, this.radius / 4] : [Math.PI, 0, this.radius / 1.25];
 
       var _ref2 = _slicedToArray(_ref, 3);
 
@@ -787,7 +789,7 @@ var Board = function () {
     value: function findNeighboringSmootMatches(smoot) {
       var _this2 = this;
 
-      var matchingSmoots = [];
+      var matchingSmoots = [smoot];
       var smootGridPos = smoot.gridPos;
       var matchingPositions = [smootGridPos];
       var neighborGridPositions = this.getNeighborGridPositions(smootGridPos);
@@ -805,7 +807,13 @@ var Board = function () {
         if (!neighborSmoot.isChecked && smoot.matchesWith(neighborSmoot)) {
 
           // if (!matchingPositions.includes(smootNeighborPos)) matchingPositions.push(smootNeighborPos);
-          if (!matchingSmoots.includes(neighborSmoot)) matchingSmoots.push(neighborSmoot);
+          // if (!matchingSmoots.includes(neighborSmoot)) matchingSmoots.push(neighborSmoot);
+          if (!matchingSmoots.includes(neighborSmoot)) {
+            // check each one recursively
+            _this2.findNeighboringSmootMatches(neighborSmoot).forEach(function (smoot) {
+              return matchingSmoots.push(smoot);
+            });
+          }
         }
       });
 
@@ -937,6 +945,7 @@ var Cannon = function () {
           mouseY = _ref.mouseY;
 
       // Tracking the cursor
+      ctx.fillStyle = "white";
       ctx.fillRect(mouseX, mouseY, 2, 2);
     }
   }, {
