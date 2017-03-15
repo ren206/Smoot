@@ -107,7 +107,7 @@ exports.default = {
   // Smoot settings
   SMOOT: {
     RADIUS: 25,
-    NUM_COLORS: 3,
+    NUM_COLORS: 6,
     COLORS: ['#b73131', // "red",
     '#33b72e', // "green",
     '#2d44b7', // "darkblue",
@@ -184,9 +184,10 @@ var Game = function () {
           if (hangingObject instanceof _smoot2.default) {
             if (this.smoot.collidedWithTop() || this.smoot.collidedWith(hangingObject)) {
               this.hangSmoot();
-              if (this.hasReachedBottom()) this.endGame();
+              if (this.hasReachedBottom()) this.loseGame();
               this.handleMatches();
               this.reload();
+              if (this.board.isEmpty()) this.winGame();
             }
           }
         }
@@ -213,11 +214,6 @@ var Game = function () {
     key: 'dropMatches',
     value: function dropMatches(matches) {
       this.board.drop(matches);
-    }
-  }, {
-    key: 'endGame',
-    value: function endGame() {
-      this.hasEnded = "loss";
     }
   }, {
     key: 'generateRandomSmoot',
@@ -247,6 +243,11 @@ var Game = function () {
     key: 'hasReachedBottom',
     value: function hasReachedBottom() {
       return this.board.hasReachedBottom();
+    }
+  }, {
+    key: 'loseGame',
+    value: function loseGame() {
+      this.hasEnded = "lost";
     }
   }, {
     key: 'newBoard',
@@ -282,6 +283,11 @@ var Game = function () {
     value: function step() {
       this.smoot.move();
       this.checkState();
+    }
+  }, {
+    key: 'winGame',
+    value: function winGame() {
+      this.hasEnded = "won";
     }
   }]);
 
@@ -516,10 +522,11 @@ var GameView = function () {
   }, {
     key: 'drawGameOver',
     value: function drawGameOver() {
+      var endText = this.game.hasEnded;
       var height = _settings2.default.BOARD.HEIGHT;
       this.ctx.fillStyle = _settings2.default.TEXT.COLOR;
       this.ctx.font = '36px "Russo One"';
-      this.ctx.fillText('Game Over', 20, height - 180);
+      this.ctx.fillText('You\'ve ' + endText + '!', 20, height - 180);
       this.ctx.fillText('Try Again?', 20, height - 140);
       this.ctx.fillText('Click anywhere or press any button...', 20, height - 100);
     }
@@ -539,7 +546,7 @@ var GameView = function () {
       var intervalId = setInterval(function () {
         _this.game.step();
         _this.game.draw(_this.ctx);
-        if (_this.game.hasEnded) {
+        if (Boolean(_this.game.hasEnded)) {
           _this.stop(intervalId);
           resetGameListener();
         }
@@ -848,6 +855,15 @@ var Board = function () {
     key: 'hasReachedBottom',
     value: function hasReachedBottom() {
       return this.game.smoot.gridPos[0] === this.grid.length - 1;
+    }
+  }, {
+    key: 'isEmpty',
+    value: function isEmpty() {
+      return this.grid.every(function (row) {
+        return row.every(function (hangingObject) {
+          return hangingObject instanceof _smoot_space2.default;
+        });
+      });
     }
   }, {
     key: 'resetChecks',
