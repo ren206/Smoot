@@ -766,7 +766,7 @@ var Board = function () {
   }, {
     key: 'hasReachedBottom',
     value: function hasReachedBottom() {
-      return this.game.smoot.gridPos[0] === this.grid.length - 1;
+      return this.game.smoot.gridPos[0] >= _settings2.default.BOARD.ROW_COUNT - 2;
     }
   }, {
     key: 'isEmpty',
