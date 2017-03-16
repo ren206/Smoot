@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 8);
+/******/ 	return __webpack_require__(__webpack_require__.s = 9);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -86,7 +86,7 @@ exports.default = {
     ROW_SIZE: 13,
     ROW_COUNT: 13,
     FILLED_ROW_COUNT: 6,
-    OFFSET: 10,
+    OFFSET: 12,
     GRID_DIRECTIONS_LEFT: [[-1, -1], [-1, 0], [0, -1], [0, 1], [1, -1], [1, 0]],
     GRID_DIRECTIONS_RIGHT: [[-1, 0], [-1, 1], [0, -1], [0, 1], [1, 0], [1, 1]]
   },
@@ -108,7 +108,7 @@ exports.default = {
   // Smoot settings
   SMOOT: {
     RADIUS: 25,
-    NUM_COLORS: 4,
+    NUM_COLORS: 3,
     COLORS: ['#b73131', // "red",
     '#33b72e', // "green",
     '#2d44b7', // "darkblue",
@@ -144,15 +144,15 @@ var _settings = __webpack_require__(0);
 
 var _settings2 = _interopRequireDefault(_settings);
 
-var _cannon = __webpack_require__(4);
+var _cannon = __webpack_require__(6);
 
 var _cannon2 = _interopRequireDefault(_cannon);
 
-var _board = __webpack_require__(3);
+var _board = __webpack_require__(5);
 
 var _board2 = _interopRequireDefault(_board);
 
-var _smoot = __webpack_require__(6);
+var _smoot = __webpack_require__(2);
 
 var _smoot2 = _interopRequireDefault(_smoot);
 
@@ -190,7 +190,7 @@ var Game = function () {
                 return;
               }
               this.handleMatches();
-              // this.handleFloatingGroups();
+              this.handleFloatingGroups();
               this.reload();
               if (this.board.isEmpty()) this.winGame();
             }
@@ -335,6 +335,182 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); // import * as MyCanvas from './my_canvas';
+
+
+var _settings = __webpack_require__(0);
+
+var _settings2 = _interopRequireDefault(_settings);
+
+var _utils = __webpack_require__(3);
+
+var Utils = _interopRequireWildcard(_utils);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Smoot = function () {
+  function Smoot(options) {
+    _classCallCheck(this, Smoot);
+
+    // this.canvasElement = MyCanvas.getElement();
+    // this.canvasBorders = MyCanvas.getBorders();
+    this.color = options.color;
+    this.centerPos = options.centerPos;
+    this.gridPos = options.gridPos;
+    this.radius = _settings2.default.SMOOT.RADIUS;
+    this.vel = options.vel || [0, 0];
+
+    // this.sad = Math.random() < 0.5 ? true : false;
+    this.sad = Boolean(this.centerPos[1] >= _settings2.default.BOARD.HEIGHT / 3);
+  }
+
+  _createClass(Smoot, [{
+    key: 'draw',
+    value: function draw(ctx) {
+      this.drawCircle(ctx);
+      this.drawFace(ctx);
+    }
+  }, {
+    key: 'drawCircle',
+    value: function drawCircle(ctx) {
+      ctx.fillStyle = this.color;
+      ctx.beginPath();
+      ctx.arc(this.centerPos[0], this.centerPos[1], this.radius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }, {
+    key: 'drawFace',
+    value: function drawFace(ctx) {
+
+      // left eye
+      ctx.fillStyle = "black";
+      ctx.beginPath();
+      ctx.arc(this.centerPos[0] - this.radius / 2, this.centerPos[1] - this.radius / 2, 4, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.fill();
+
+      // right eye
+      ctx.beginPath();
+      ctx.arc(this.centerPos[0] + this.radius / 2, this.centerPos[1] - this.radius / 2, 4, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.fill();
+
+      // nose
+
+      ctx.beginPath();
+
+      ctx.arc(this.centerPos[0], this.centerPos[1], 4, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.fill();
+
+      // mouth
+      var mouthStart = void 0,
+          mouthEnd = void 0,
+          centerOffset = void 0;
+
+      var _ref = this.sad ? [Math.PI, 0, this.radius / 1.25] : [0, Math.PI, this.radius / 4];
+
+      var _ref2 = _slicedToArray(_ref, 3);
+
+      mouthStart = _ref2[0];
+      mouthEnd = _ref2[1];
+      centerOffset = _ref2[2];
+
+      ctx.beginPath();
+      ctx.arc(this.centerPos[0], this.centerPos[1] + centerOffset, this.radius / 2, mouthStart, mouthEnd);
+      ctx.closePath();
+      ctx.lineWidth = 2;
+      ctx.fillStyle = "black", ctx.fill();
+    }
+
+    // getRandomColor() {
+    //   const numColors = Settings.SMOOT.NUM_COLORS;
+    //   return Settings.SMOOT.COLORS[Math.floor(Math.random() * numColors)];
+    // }
+
+  }, {
+    key: 'isCollidedWith',
+    value: function isCollidedWith(anotherSmoot) {
+      var distBetweenCenters = Utils.getDistanceBetween2(this.centerPos, anotherSmoot.centerPos);
+      return distBetweenCenters <= this.radius * 2;
+    }
+  }, {
+    key: 'isCollidedWithTop',
+    value: function isCollidedWithTop() {
+      return this.centerPos[1] <= this.radius;
+    }
+  }, {
+    key: 'isHangingOnTop',
+    value: function isHangingOnTop() {
+      this.isChecked = true;
+      return this.gridPos[0] === 0;
+    }
+  }, {
+    key: 'matchesWith',
+    value: function matchesWith(smoot) {
+      this.isChecked = true;
+      smoot.isChecked = true;
+      return this.color === smoot.color;
+    }
+  }, {
+    key: 'move',
+    value: function move() {
+      if (this.centerPos[0] + this.radius >= _settings2.default.BOARD.WIDTH || this.centerPos[0] <= this.radius) {
+        this.vel[0] = -this.vel[0];
+      }
+
+      this.centerPos[0] += this.vel[0];
+      this.centerPos[1] += this.vel[1];
+      this.sad = Boolean(this.centerPos[1] >= _settings2.default.BOARD.HEIGHT / 3);
+    }
+  }, {
+    key: 'resetCheck',
+    value: function resetCheck() {
+      this.isChecked = false;
+    }
+  }, {
+    key: 'stop',
+    value: function stop() {
+      this.vel = [0, 0];
+    }
+  }]);
+
+  return Smoot;
+}();
+
+exports.default = Smoot;
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var getDistanceBetween2 = exports.getDistanceBetween2 = function getDistanceBetween2(pos1, pos2) {
+  return Math.sqrt(Math.pow(pos1[0] - pos2[0], 2) + Math.pow(pos1[1] - pos2[1], 2));
+};
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _settings = __webpack_require__(0);
@@ -426,7 +602,7 @@ var GameView = function () {
 exports.default = GameView;
 
 /***/ }),
-/* 3 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -440,11 +616,11 @@ var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = [
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _smoot = __webpack_require__(6);
+var _smoot = __webpack_require__(2);
 
 var _smoot2 = _interopRequireDefault(_smoot);
 
-var _smoot_space = __webpack_require__(9);
+var _smoot_space = __webpack_require__(8);
 
 var _smoot_space2 = _interopRequireDefault(_smoot_space);
 
@@ -452,7 +628,7 @@ var _settings = __webpack_require__(0);
 
 var _settings2 = _interopRequireDefault(_settings);
 
-var _utils = __webpack_require__(7);
+var _utils = __webpack_require__(3);
 
 var Utils = _interopRequireWildcard(_utils);
 
@@ -660,6 +836,7 @@ var Board = function () {
         row.forEach(function (item) {
           if (item instanceof _smoot2.default) {
             var group = _this2.findFloaters(item);
+            console.log(group.length);
             if (group.length > 0) floatingGroups.push(group);
           }
         });
@@ -669,30 +846,38 @@ var Board = function () {
   }, {
     key: 'findFloaters',
     value: function findFloaters(smoot) {
-      var floaters = [];
+      var _this3 = this;
 
+      var floaters = [];
+      var potentialCluster = [smoot];
+      var currentSmoot = void 0;
+
+      while (potentialCluster.length > 0) {
+        currentSmoot = potentialCluster.pop();
+        if (!currentSmoot.isChecked) {
+          if (currentSmoot.gridPos[0] === 0) return [];
+          floaters.push(currentSmoot);
+        }
+
+        currentSmoot.isChecked = true;
+        var neighborGridPositions = this.getNeighborGridPositions(currentSmoot.gridPos);
+        var smootNeighborPositions = neighborGridPositions.filter(function (pos) {
+          return _this3.grid[pos[0]][pos[1]] instanceof _smoot2.default;
+        });
+        smootNeighborPositions.forEach(function (smootNeighborPos) {
+          var neighborSmoot = _this3.grid[smootNeighborPos[0]][smootNeighborPos[1]];
+
+          if (!neighborSmoot.isChecked) {
+            potentialCluster.push(neighborSmoot);
+          }
+        });
+      }
       return floaters;
     }
-
-    // isHanging(smoot) {
-    //   debugger
-    //   if (smoot.isHangingOnTop()) return true;
-    //   let gridPos = smoot.gridPos;
-    //   let neighborGridPositions = this.getNeighborGridPositions(gridPos);
-    //   neighborGridPositions = neighborGridPositions.filter(pos => pos[0] <= gridPos[0]);
-    //   let neighborSmoot;
-    //   neighborGridPositions.forEach(pos => {
-    //     neighborSmoot = this.grid[pos[0]][pos[1]];
-    //     if (this.isHanging(neighborSmoot)) return true;
-    //   })
-    //
-    //   return false;
-    // }
-
   }, {
     key: 'findNeighboringSmootMatches',
     value: function findNeighboringSmootMatches(smoot) {
-      var _this3 = this;
+      var _this4 = this;
 
       var matchingSmoots = [smoot];
       var smootGridPos = smoot.gridPos;
@@ -701,19 +886,19 @@ var Board = function () {
 
       // ensure the neighbors are Smoots
       var smootNeighborPositions = neighborGridPositions.filter(function (pos) {
-        return _this3.grid[pos[0]][pos[1]] instanceof _smoot2.default;
+        return _this4.grid[pos[0]][pos[1]] instanceof _smoot2.default;
       });
 
       // filter for neighbor smoots
       smootNeighborPositions.forEach(function (smootNeighborPos) {
-        var neighborSmoot = _this3.grid[smootNeighborPos[0]][smootNeighborPos[1]];
+        var neighborSmoot = _this4.grid[smootNeighborPos[0]][smootNeighborPos[1]];
 
         // check for matches
         if (!neighborSmoot.isChecked && smoot.matchesWith(neighborSmoot)) {
 
           if (!matchingSmoots.includes(neighborSmoot)) {
             // check each one recursively
-            _this3.findNeighboringSmootMatches(neighborSmoot).forEach(function (smoot) {
+            _this4.findNeighboringSmootMatches(neighborSmoot).forEach(function (smoot) {
               return matchingSmoots.push(smoot);
             });
           }
@@ -722,19 +907,6 @@ var Board = function () {
 
       // return an array of smoots
       return matchingSmoots;
-    }
-  }, {
-    key: 'getRemainingColors',
-    value: function getRemainingColors() {
-      var colors = [];
-      this.grid.forEach(function (row) {
-        return row.forEach(function (item) {
-          if (item instanceof _smoot2.default) {
-            if (!colors.includes(item.color)) colors.push(item.color);
-          }
-        });
-      });
-      return colors;
     }
   }, {
     key: 'getNeighborGridPositions',
@@ -755,6 +927,7 @@ var Board = function () {
           positions.push(neighborPos);
         }
       });
+      if (positions.length === 0) debugger;
 
       return positions;
     }
@@ -762,6 +935,19 @@ var Board = function () {
     key: 'getRandomColor',
     value: function getRandomColor() {
       return this.game.getRandomColor();
+    }
+  }, {
+    key: 'getRemainingColors',
+    value: function getRemainingColors() {
+      var colors = [];
+      this.grid.forEach(function (row) {
+        return row.forEach(function (item) {
+          if (item instanceof _smoot2.default) {
+            if (!colors.includes(item.color)) colors.push(item.color);
+          }
+        });
+      });
+      return colors;
     }
   }, {
     key: 'hasReachedBottom',
@@ -794,7 +980,7 @@ var Board = function () {
 exports.default = Board;
 
 /***/ }),
-/* 4 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -806,7 +992,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _my_canvas = __webpack_require__(5);
+var _my_canvas = __webpack_require__(7);
 
 var MyCanvas = _interopRequireWildcard(_my_canvas);
 
@@ -977,7 +1163,7 @@ var Cannon = function () {
 exports.default = Cannon;
 
 /***/ }),
-/* 5 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1007,228 +1193,7 @@ var getTopBorder = exports.getTopBorder = function getTopBorder() {
 };
 
 /***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); // import * as MyCanvas from './my_canvas';
-
-
-var _settings = __webpack_require__(0);
-
-var _settings2 = _interopRequireDefault(_settings);
-
-var _utils = __webpack_require__(7);
-
-var Utils = _interopRequireWildcard(_utils);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var Smoot = function () {
-  function Smoot(options) {
-    _classCallCheck(this, Smoot);
-
-    // this.canvasElement = MyCanvas.getElement();
-    // this.canvasBorders = MyCanvas.getBorders();
-    this.color = options.color;
-    this.centerPos = options.centerPos;
-    this.gridPos = options.gridPos;
-    this.radius = _settings2.default.SMOOT.RADIUS;
-    this.vel = options.vel || [0, 0];
-
-    // this.sad = Math.random() < 0.5 ? true : false;
-    this.sad = Boolean(this.centerPos[1] >= _settings2.default.BOARD.HEIGHT / 3);
-  }
-
-  _createClass(Smoot, [{
-    key: 'draw',
-    value: function draw(ctx) {
-      this.drawCircle(ctx);
-      this.drawFace(ctx);
-    }
-  }, {
-    key: 'drawCircle',
-    value: function drawCircle(ctx) {
-      ctx.fillStyle = this.color;
-      ctx.beginPath();
-      ctx.arc(this.centerPos[0], this.centerPos[1], this.radius, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  }, {
-    key: 'drawFace',
-    value: function drawFace(ctx) {
-
-      // left eye
-      ctx.fillStyle = "black";
-      ctx.beginPath();
-      ctx.arc(this.centerPos[0] - this.radius / 2, this.centerPos[1] - this.radius / 2, 4, 0, Math.PI * 2);
-      ctx.closePath();
-      ctx.fill();
-
-      // right eye
-      ctx.beginPath();
-      ctx.arc(this.centerPos[0] + this.radius / 2, this.centerPos[1] - this.radius / 2, 4, 0, Math.PI * 2);
-      ctx.closePath();
-      ctx.fill();
-
-      // nose
-
-      ctx.beginPath();
-
-      ctx.arc(this.centerPos[0], this.centerPos[1], 4, 0, Math.PI * 2);
-      ctx.closePath();
-      ctx.fill();
-
-      // mouth
-      var mouthStart = void 0,
-          mouthEnd = void 0,
-          centerOffset = void 0;
-
-      var _ref = this.sad ? [Math.PI, 0, this.radius / 1.25] : [0, Math.PI, this.radius / 4];
-
-      var _ref2 = _slicedToArray(_ref, 3);
-
-      mouthStart = _ref2[0];
-      mouthEnd = _ref2[1];
-      centerOffset = _ref2[2];
-
-      ctx.beginPath();
-      ctx.arc(this.centerPos[0], this.centerPos[1] + centerOffset, this.radius / 2, mouthStart, mouthEnd);
-      ctx.closePath();
-      ctx.lineWidth = 2;
-      ctx.fillStyle = "black", ctx.fill();
-    }
-
-    // getRandomColor() {
-    //   const numColors = Settings.SMOOT.NUM_COLORS;
-    //   return Settings.SMOOT.COLORS[Math.floor(Math.random() * numColors)];
-    // }
-
-  }, {
-    key: 'isCollidedWith',
-    value: function isCollidedWith(anotherSmoot) {
-      var distBetweenCenters = Utils.getDistanceBetween2(this.centerPos, anotherSmoot.centerPos);
-      return distBetweenCenters <= this.radius * 2;
-    }
-  }, {
-    key: 'isCollidedWithTop',
-    value: function isCollidedWithTop() {
-      return this.centerPos[1] <= this.radius;
-    }
-  }, {
-    key: 'isHangingOnTop',
-    value: function isHangingOnTop() {
-      this.isChecked = true;
-      return this.gridPos[0] === 0;
-    }
-  }, {
-    key: 'matchesWith',
-    value: function matchesWith(smoot) {
-      this.isChecked = true;
-      smoot.isChecked = true;
-      return this.color === smoot.color;
-    }
-  }, {
-    key: 'move',
-    value: function move() {
-      if (this.centerPos[0] + this.radius >= _settings2.default.BOARD.WIDTH || this.centerPos[0] <= this.radius) {
-        this.vel[0] = -this.vel[0];
-      }
-
-      this.centerPos[0] += this.vel[0];
-      this.centerPos[1] += this.vel[1];
-      this.sad = Boolean(this.centerPos[1] >= _settings2.default.BOARD.HEIGHT / 3);
-    }
-  }, {
-    key: 'resetCheck',
-    value: function resetCheck() {
-      this.isChecked = false;
-    }
-  }, {
-    key: 'stop',
-    value: function stop() {
-      this.vel = [0, 0];
-    }
-  }]);
-
-  return Smoot;
-}();
-
-exports.default = Smoot;
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-var getDistanceBetween2 = exports.getDistanceBetween2 = function getDistanceBetween2(pos1, pos2) {
-  return Math.sqrt(Math.pow(pos1[0] - pos2[0], 2) + Math.pow(pos1[1] - pos2[1], 2));
-};
-
-/***/ }),
 /* 8 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _game_view = __webpack_require__(2);
-
-var _game_view2 = _interopRequireDefault(_game_view);
-
-var _game = __webpack_require__(1);
-
-var _game2 = _interopRequireDefault(_game);
-
-var _settings = __webpack_require__(0);
-
-var _settings2 = _interopRequireDefault(_settings);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-document.addEventListener("DOMContentLoaded", function () {
-  var canvasElement = document.getElementsByTagName("canvas")[0];
-  canvasElement.width = _settings2.default.BOARD.WIDTH;
-  canvasElement.height = _settings2.default.BOARD.HEIGHT;
-  canvasElement.style.cursor = "none"; // TODO: move to CSS
-
-  var ctx = canvasElement.getContext("2d");
-  // const game = new Game();
-  var gameView = new _game_view2.default(canvasElement);
-  gameView.start(resetListener);
-
-  var resetGameView = function resetGameView() {
-    gameView = new _game_view2.default(canvasElement);
-    gameView.start(resetListener);
-    document.removeEventListener('keypress', resetGameView, false);
-    document.removeEventListener('click', resetGameView, false);
-  };
-
-  function resetListener() {
-    document.addEventListener('keypress', resetGameView, false);
-    document.addEventListener('click', resetGameView, false);
-  }
-});
-
-/***/ }),
-/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1282,6 +1247,51 @@ var SmootSpace = function () {
 }();
 
 exports.default = SmootSpace;
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _game_view = __webpack_require__(4);
+
+var _game_view2 = _interopRequireDefault(_game_view);
+
+var _game = __webpack_require__(1);
+
+var _game2 = _interopRequireDefault(_game);
+
+var _settings = __webpack_require__(0);
+
+var _settings2 = _interopRequireDefault(_settings);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+document.addEventListener("DOMContentLoaded", function () {
+  var canvasElement = document.getElementsByTagName("canvas")[0];
+  canvasElement.width = _settings2.default.BOARD.WIDTH;
+  canvasElement.height = _settings2.default.BOARD.HEIGHT;
+  canvasElement.style.cursor = "none"; // TODO: move to CSS
+
+  var ctx = canvasElement.getContext("2d");
+  // const game = new Game();
+  var gameView = new _game_view2.default(canvasElement);
+  gameView.start(resetListener);
+
+  var resetGameView = function resetGameView() {
+    gameView = new _game_view2.default(canvasElement);
+    gameView.start(resetListener);
+    document.removeEventListener('keypress', resetGameView, false);
+    document.removeEventListener('click', resetGameView, false);
+  };
+
+  function resetListener() {
+    document.addEventListener('keypress', resetGameView, false);
+    document.addEventListener('click', resetGameView, false);
+  }
+});
 
 /***/ })
 /******/ ]);
