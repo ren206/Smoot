@@ -108,7 +108,7 @@ exports.default = {
   // Smoot settings
   SMOOT: {
     RADIUS: 25,
-    NUM_COLORS: 6,
+    NUM_COLORS: 4,
     COLORS: ['#b73131', // "red",
     '#33b72e', // "green",
     '#2d44b7', // "darkblue",
@@ -257,9 +257,14 @@ var Game = function () {
   }, {
     key: 'loadRandomSmoot',
     value: function loadRandomSmoot() {
+      var color = this.getRandomColor();
+      var remainingColors = this.board.getRemainingColors();
+      if (remainingColors.length > 0 && remainingColors.length < 3) {
+        color = remainingColors[Math.floor(Math.random() * remainingColors.length)];
+      }
       return new _smoot2.default({
         centerPos: [_settings2.default.BOARD.WIDTH / 2, _settings2.default.BOARD.HEIGHT + 2],
-        color: this.getRandomColor()
+        color: color
       });
     }
   }, {
@@ -717,6 +722,19 @@ var Board = function () {
 
       // return an array of smoots
       return matchingSmoots;
+    }
+  }, {
+    key: 'getRemainingColors',
+    value: function getRemainingColors() {
+      var colors = [];
+      this.grid.forEach(function (row) {
+        return row.forEach(function (item) {
+          if (item instanceof _smoot2.default) {
+            if (!colors.includes(item.color)) colors.push(item.color);
+          }
+        });
+      });
+      return colors;
     }
   }, {
     key: 'getNeighborGridPositions',
