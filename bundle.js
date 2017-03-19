@@ -79,14 +79,14 @@ Object.defineProperty(exports, "__esModule", {
 exports.default = {
   // Board settings
   BOARD: {
-    WIDTH: 690,
+    WIDTH: 680,
     HEIGHT: 600,
     // BG_COLOR: '#182838',
     BG_COLOR: '#000',
     ROW_SIZE: 13,
     ROW_COUNT: 13,
-    FILLED_ROW_COUNT: 10,
-    OFFSET: 12,
+    FILLED_ROW_COUNT: 6,
+    OFFSET: 0,
     GRID_DIRECTIONS_LEFT: [[-1, -1], [-1, 0], [0, -1], [0, 1], [1, -1], [1, 0]],
     GRID_DIRECTIONS_RIGHT: [[-1, 0], [-1, 1], [0, -1], [0, 1], [1, 0], [1, 1]]
   },
@@ -403,18 +403,23 @@ var Smoot = function () {
 
       // nose
 
-      ctx.beginPath();
-
-      ctx.arc(this.centerPos[0], this.centerPos[1], 4, 0, Math.PI * 2);
-      ctx.closePath();
-      ctx.fill();
+      // ctx.beginPath();
+      //
+      // ctx.arc(
+      //   this.centerPos[0],
+      //   this.centerPos[1],
+      //   4,
+      //   0, Math.PI * 2
+      // )
+      // ctx.closePath();
+      // ctx.fill();
 
       // mouth
       var mouthStart = void 0,
           mouthEnd = void 0,
           centerOffset = void 0;
 
-      var _ref = this.sad ? [Math.PI, 0, this.radius / 1.25] : [0, Math.PI, this.radius / 4];
+      var _ref = this.sad ? [Math.PI, 0, this.radius * 2 / 3] : [0, Math.PI, this.radius / 8];
 
       var _ref2 = _slicedToArray(_ref, 3);
 
@@ -423,7 +428,7 @@ var Smoot = function () {
       centerOffset = _ref2[2];
 
       ctx.beginPath();
-      ctx.arc(this.centerPos[0], this.centerPos[1] + centerOffset, this.radius / 2, mouthStart, mouthEnd);
+      ctx.arc(this.centerPos[0], this.centerPos[1] + centerOffset, this.radius * 2 / 3, mouthStart, mouthEnd);
       ctx.closePath();
       ctx.lineWidth = 2;
       ctx.fillStyle = "black", ctx.fill();
