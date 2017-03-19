@@ -85,8 +85,9 @@ exports.default = {
     BG_COLOR: '#000',
     ROW_SIZE: 13,
     ROW_COUNT: 13,
-    FILLED_ROW_COUNT: 6,
+    FILLED_ROW_COUNT: 3,
     OFFSET: 0,
+    GRID_DIRECTIONS: [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]],
     GRID_DIRECTIONS_LEFT: [[-1, -1], [-1, 0], [0, -1], [0, 1], [1, -1], [1, 0]],
     GRID_DIRECTIONS_RIGHT: [[-1, 0], [-1, 1], [0, -1], [0, 1], [1, 0], [1, 1]]
   },
@@ -108,7 +109,7 @@ exports.default = {
   // Smoot settings
   SMOOT: {
     RADIUS: 25,
-    NUM_COLORS: 3,
+    NUM_COLORS: 6,
     COLORS: ['#b73131', // "red",
     '#33b72e', // "green",
     '#2d44b7', // "darkblue",
@@ -123,7 +124,9 @@ exports.default = {
 
   TEXT: {
     COLOR: "#aaafb7"
-  }
+  },
+
+  TURNS: 4
 
 };
 
@@ -167,6 +170,7 @@ var Game = function () {
     this.board = this.newBoard();
     this.smoot = this.loadRandomSmoot();
     this.cannon = this.newCannon();
+    this.turnUntilRow = _settings2.default.TURNS;
     this.hasEnded = "";
   }
 
@@ -185,14 +189,13 @@ var Game = function () {
           if (hangingObject instanceof _smoot2.default) {
             if (this.smoot.isCollidedWithTop() || this.smoot.isCollidedWith(hangingObject)) {
               this.hangSmoot();
-              if (this.hasReachedBottom()) {
-                this.loseGame();
-                return;
-              }
+              // if (this.hasReachedBottom()) {
+              //   this.loseGame();
+              //   return;
+              // }
               this.handleMatches();
-              this.handleFloatingGroups();
+              // this.handleFloatingGroups();
               this.reload();
-              if (this.board.isEmpty()) this.winGame();
             }
           }
         }
@@ -227,22 +230,15 @@ var Game = function () {
       return _settings2.default.SMOOT.COLORS[Math.floor(Math.random() * numColors)];
     }
   }, {
-    key: 'handleFloatingGroups',
-    value: function handleFloatingGroups() {
-      var _this = this;
-
-      var floatingGroups = this.board.findFloatingGroups();
-      if (floatingGroups.length > 0) floatingGroups.forEach(function (floater) {
-        return _this.drop(floater);
-      });
-      this.resetChecks();
-    }
-  }, {
     key: 'handleMatches',
     value: function handleMatches() {
       var matches = this.board.findNeighboringSmootMatches(this.smoot);
       if (matches.length > 2) this.drop(matches);
       this.resetChecks();
+
+      // const floatingGroups = this.board.findFloatingGroups();
+      // if (floatingGroups.length > 0) floatingGroups.forEach(floater => this.drop(floater));
+      // this.resetChecks();
     }
   }, {
     key: 'hangSmoot',
@@ -291,6 +287,7 @@ var Game = function () {
   }, {
     key: 'reload',
     value: function reload() {
+      this.turnUntilRow -= 1;
       this.smoot = this.loadRandomSmoot();
     }
   }, {
@@ -311,6 +308,15 @@ var Game = function () {
     value: function step() {
       this.smoot.move();
       this.checkState();
+      if (this.turnUntilRow === 0) {
+        this.board.addRow();
+        this.turnUntilRow = _settings2.default.TURNS;
+      }
+      if (this.board.isEmpty()) {
+        this.winGame();
+      } else if (this.hasReachedBottom()) {
+        this.loseGame();
+      }
     }
   }, {
     key: 'winGame',
@@ -459,8 +465,8 @@ var Smoot = function () {
   }, {
     key: 'matchesWith',
     value: function matchesWith(smoot) {
-      this.isChecked = true;
-      smoot.isChecked = true;
+      // this.isChecked = true;
+      // smoot.isChecked = true;
       return this.color === smoot.color;
     }
   }, {
@@ -503,6 +509,10 @@ Object.defineProperty(exports, "__esModule", {
 });
 var getDistanceBetween2 = exports.getDistanceBetween2 = function getDistanceBetween2(pos1, pos2) {
   return Math.sqrt(Math.pow(pos1[0] - pos2[0], 2) + Math.pow(pos1[1] - pos2[1], 2));
+};
+
+var betweenNums = exports.betweenNums = function betweenNums(num, start, end) {
+  return num >= start && num < end;
 };
 
 /***/ }),
@@ -652,6 +662,54 @@ var Board = function () {
   }
 
   _createClass(Board, [{
+    key: 'addRow',
+    value: function addRow() {
+      var radius = _settings2.default.SMOOT.RADIUS;
+      var diameter = radius * 2;
+      this.grid.pop();
+      this.grid.forEach(function (row) {
+        return row.forEach(function (item) {
+          item.centerPos[1] += diameter - radius / 4;
+          item.gridPos[0] += 1;
+        });
+      });
+
+      var startCoord = void 0;
+      var row = [];
+      var nextCoord = void 0;
+
+      if (this.grid[0][0].centerPos[0] === radius) {
+        startCoord = [2 * radius, radius];
+      } else {
+        startCoord = [radius, radius];
+      }
+
+      for (var i = 0; i < _settings2.default.BOARD.ROW_SIZE; i++) {
+        var newSmoot = void 0;
+
+        if (i === 0) {
+          nextCoord = startCoord.slice();
+          newSmoot = new _smoot2.default({
+            centerPos: nextCoord.slice(),
+            gridPos: [0, i],
+            color: this.getRandomColor()
+          });
+          row.push(newSmoot);
+          continue;
+        }
+
+        nextCoord[0] = nextCoord[0] + 2 * radius;
+        newSmoot = new _smoot2.default({
+          centerPos: nextCoord.slice(),
+          gridPos: [0, i],
+          color: this.getRandomColor()
+        });
+        row.push(newSmoot);
+      }
+
+      this.grid.unshift(row);
+    }
+  }, {
     key: 'addToGrid',
     value: function addToGrid(smoot) {
       var closestPos = void 0,
@@ -741,7 +799,7 @@ var Board = function () {
         }
 
         this.grid.push(row);
-        var gapCloser = radius / 14;
+        var gapCloser = radius / 4;
         rowPos[1] += diameter - gapCloser;
       }
     }
@@ -841,11 +899,11 @@ var Board = function () {
         row.forEach(function (item) {
           if (item instanceof _smoot2.default) {
             var group = _this2.findFloaters(item);
-            console.log(group.length);
             if (group.length > 0) floatingGroups.push(group);
           }
         });
       });
+
       return floatingGroups;
     }
   }, {
@@ -900,7 +958,7 @@ var Board = function () {
 
         // check for matches
         if (!neighborSmoot.isChecked && smoot.matchesWith(neighborSmoot)) {
-
+          smoot.isChecked = true;
           if (!matchingSmoots.includes(neighborSmoot)) {
             // check each one recursively
             _this4.findNeighboringSmootMatches(neighborSmoot).forEach(function (smoot) {
@@ -921,18 +979,40 @@ var Board = function () {
       var positions = [];
 
       // first row leans right
-      var leaningLeft = Boolean(gridPos[0] % 2);
+      var leaningLeft = Boolean(gridPos[0] % 2 !== 0);
+      // const leaningLeft = this.grid[gridPos[0]][0].centerPos[0] < Settings.SMOOT.RADIUS * 3;
 
       var gridDirections = leaningLeft ? _settings2.default.BOARD.GRID_DIRECTIONS_LEFT : _settings2.default.BOARD.GRID_DIRECTIONS_RIGHT;
 
       var neighborPos = void 0;
       gridDirections.forEach(function (direction) {
         neighborPos = [gridPos[0] + direction[0], gridPos[1] + direction[1]];
-        if (neighborPos[0] >= 0 && neighborPos[0] < _settings2.default.BOARD.ROW_COUNT && neighborPos[1] >= 0 && neighborPos[1] < _settings2.default.BOARD.ROW_SIZE) {
-          positions.push(neighborPos);
-        }
+        if (Utils.betweenNums(neighborPos[0], 0, _settings2.default.BOARD.ROW_COUNT) && Utils.betweenNums(neighborPos[1], 0, _settings2.default.BOARD.ROW_SIZE)
+        // neighborPos[0] >= 0 && neighborPos[0] < Settings.BOARD.ROW_COUNT &&
+        // neighborPos[1] >= 0 && neighborPos[1] < Settings.BOARD.ROW_SIZE
+        ) positions.push(neighborPos);
       });
-      if (positions.length === 0) debugger;
+      // if (gridPos[0] === 3 && gridPos[1] === 0) debugger;
+      return positions;
+    }
+  }, {
+    key: 'getNeighborGridPositions2',
+    value: function getNeighborGridPositions2(gridPos) {
+      var _this5 = this;
+
+      var positions = [];
+      var smootAtPos = this.grid[gridPos[0]][gridPos[1]];
+
+      var gridDirections = _settings2.default.BOARD.GRID_DIRECTIONS;
+      var neighborPos = void 0;
+      var neighborSmoot = void 0;
+      gridDirections.forEach(function (direction) {
+        neighborPos = [gridPos[0] + direction[0], gridPos[1] + direction[1]];
+        neighborSmoot = _this5.grid[neighborPos[0]][neighborPos[1]];
+        if (Utils.betweenNums(neighborPos[0], 0, _settings2.default.BOARD.ROW_COUNT) && Utils.betweenNums(neighborPos[1], 0, _settings2.default.BOARD.ROW_SIZE) && smootAtPos.isCollidedWith(neighborSmoot) && positions.filter(function (pos) {
+          return pos[0] === neighborPos[0] && pos[1] === neighborPos[1];
+        }).length === 0) positions.push(neighborPos);
+      });
 
       return positions;
     }
@@ -957,7 +1037,11 @@ var Board = function () {
   }, {
     key: 'hasReachedBottom',
     value: function hasReachedBottom() {
-      return this.game.smoot.gridPos[0] >= _settings2.default.BOARD.ROW_COUNT - 2;
+      var reachedBottom = void 0;
+      this.grid[this.grid.length - 1].forEach(function (item) {
+        if (item instanceof _smoot2.default) reachedBottom = true;
+      });
+      return reachedBottom;
     }
   }, {
     key: 'isEmpty',
