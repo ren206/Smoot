@@ -85,7 +85,7 @@ exports.default = {
     BG_COLOR: '#000',
     ROW_SIZE: 13,
     ROW_COUNT: 13,
-    FILLED_ROW_COUNT: 3,
+    FILLED_ROW_COUNT: 5,
     OFFSET: 0,
     GRID_DIRECTIONS: [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]],
     GRID_DIRECTIONS_LEFT: [[-1, -1], [-1, 0], [0, -1], [0, 1], [1, -1], [1, 0]],
