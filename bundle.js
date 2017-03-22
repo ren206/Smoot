@@ -193,7 +193,6 @@ var Game = function () {
                 return;
               }
               this.handleMatches();
-              // this.handleFloatingGroups();
               this.reload();
               if (this.board.isEmpty()) this.winGame();
             }
@@ -230,21 +229,16 @@ var Game = function () {
       return _settings2.default.SMOOT.COLORS[Math.floor(Math.random() * numColors)];
     }
   }, {
-    key: 'handleFloatingGroups',
-    value: function handleFloatingGroups() {
-      var _this = this;
-
-      var floatingGroups = this.board.findFloatingGroups();
-      if (floatingGroups.length > 0) floatingGroups.forEach(function (floater) {
-        return _this.drop(floater);
-      });
-      this.resetChecks();
-    }
-  }, {
     key: 'handleMatches',
     value: function handleMatches() {
       var matches = this.board.findNeighboringSmootMatches(this.smoot);
-      if (matches.length > 2) this.drop(matches);
+      if (matches.length > 2) {
+        this.drop(matches);
+        this.resetChecks();
+
+        // const floatingGroups = this.board.findFloatingGroups();
+        // if (floatingGroups.length > 0) floatingGroups.forEach(floater => this.drop(floater));
+      }
       this.resetChecks();
     }
   }, {
@@ -853,8 +847,32 @@ var Board = function () {
   }, {
     key: 'findFloaters',
     value: function findFloaters(smoot) {
-      var floaters = [];
+      var _this3 = this;
 
+      var floaters = [];
+      var potentialCluster = [smoot];
+      var currentSmoot = void 0;
+
+      while (potentialCluster.length > 0) {
+        currentSmoot = potentialCluster.pop();
+        if (!currentSmoot.isChecked) {
+          if (currentSmoot.gridPos[0] === 0) return [];
+          floaters.push(currentSmoot);
+        }
+
+        currentSmoot.isChecked = true;
+        var neighborGridPositions = this.getNeighborGridPositions(currentSmoot.gridPos);
+        var smootNeighborPositions = neighborGridPositions.filter(function (pos) {
+          return _this3.grid[pos[0]][pos[1]] instanceof _smoot2.default;
+        });
+        smootNeighborPositions.forEach(function (smootNeighborPos) {
+          var neighborSmoot = _this3.grid[smootNeighborPos[0]][smootNeighborPos[1]];
+
+          if (!neighborSmoot.isChecked) {
+            potentialCluster.push(neighborSmoot);
+          }
+        });
+      }
       return floaters;
     }
 
@@ -876,7 +894,7 @@ var Board = function () {
   }, {
     key: 'findNeighboringSmootMatches',
     value: function findNeighboringSmootMatches(smoot) {
-      var _this3 = this;
+      var _this4 = this;
 
       var matchingSmoots = [smoot];
       var smootGridPos = smoot.gridPos;
@@ -885,19 +903,19 @@ var Board = function () {
 
       // ensure the neighbors are Smoots
       var smootNeighborPositions = neighborGridPositions.filter(function (pos) {
-        return _this3.grid[pos[0]][pos[1]] instanceof _smoot2.default;
+        return _this4.grid[pos[0]][pos[1]] instanceof _smoot2.default;
       });
 
       // filter for neighbor smoots
       smootNeighborPositions.forEach(function (smootNeighborPos) {
-        var neighborSmoot = _this3.grid[smootNeighborPos[0]][smootNeighborPos[1]];
+        var neighborSmoot = _this4.grid[smootNeighborPos[0]][smootNeighborPos[1]];
 
         // check for matches
         if (!neighborSmoot.isChecked && smoot.matchesWith(neighborSmoot)) {
 
           if (!matchingSmoots.includes(neighborSmoot)) {
             // check each one recursively
-            _this3.findNeighboringSmootMatches(neighborSmoot).forEach(function (smoot) {
+            _this4.findNeighboringSmootMatches(neighborSmoot).forEach(function (smoot) {
               return matchingSmoots.push(smoot);
             });
           }
