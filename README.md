@@ -1,43 +1,87 @@
 # Smoot
 
-## Background
-Smoot is a browser-based game inspired by Snood. The goal of the game is to clear the screen of the colorful circles before they reach the bottom.
+[Smoot live](http://www.mren.io/Smoot "Live link")
 
-## Functionality & MVP
-In this game, the user will be able to:
-- [ ] Aim and shoot the cannon loaded with a `Smoot`
-- [ ] Save local high scores in a cookie
+Smoot is a browser-based circle-matching game. The goal of the game is to clear the board of the colorful circles and not pile them up to the bottom.
 
-## Wireframes
-* The app contains one screen with a grid on which there is a cannon at the bottom and `Smoot` pieces on the top initially
+## How to Play
+The cannon at the base of the board tracks your mouse position to aim and fires a smoot on click. To clear smoots, shoot a smoot onto a group of 3 or more (including the one shot) of the same color. If smoots pile up to the bottom area of the screen, the player loses.
 
-## Architecture and Technologies
-In implementing this game, I will use the following libraries:
-* `JavaScript`: for starting the game, ending the game upon clearing the board, and determining the lose condition
-* `Easel.js` with `HTML5 Canvas`: for DOM manipulation and rendering the grid of still and moving `Smoot` pieces
-* Webpack: for bundling and serving up the various scripts.
+## Technologies Used
+* JavaScript
+* HTML5 Canvas
+* Native Browser DOM API
 
-There will be the following main scripts involved in this project:
+## Implementation
 
-`game_view.js`: this script will handle the logic of rendering updates to the DOM.
+### Cannon Pivoting
+I implemented mouse cursor tracking by using the `mousemove` event listener. To calculate the angle of the cannon bore (pivoting portion), I found the artangent of the mouse cursor position obtained by the `mousemove` event relative to the center of the cannon base.
 
-`game.js`: this script will hold a board and a `step()` method that is invoked each time the mouse is clicked. The `step()` method will call the `shoot()` method in `cannon.js` and decrement the height of the grid of `Smoot` pieces.
+```JavaScript
+getMousePosition(event) {
+  const borders = this.canvasBorders;
+  this.borePos = {
+    angle: Math.atan2(
+      this.base.centerY - (event.clientY - borders.top),
+      (event.clientX - borders.left) - this.base.centerX
+    ),
+    mouseX: event.clientX - borders.left,
+    mouseY: event.clientY - borders.top
+  }
+}
+```
 
-`board.js`: this script will ensure that `Smoot` pieces stay within bounds and that they are able to `bounce()` at an appropriate angles when they reach the wall.
+There were a few tricks in this method. For one thing, there is an offset between the mouse position and the canvas coordinates, as the mouse position is relative to the browser. Another factor to consider is that the origin (0, 0) of the canvas lies in the top-left corner, which results in the differences between the x and y positions in calculating the angle.
 
-`cannon.js`: this script will hold a randomly generated `Smoot` piece and a shoot() method. This
-method will send the `Smoot` piece to the `game_view` and generate another `Smoot`.
 
-`smoot.js`: this script will hold the `Smoot` class. This class holds a `Boolean` property of `moving` and a `color` property. It will have a method stop() for when it touches another `Smoot`. It will have a `neighbor_match` method to check if 2+ of its neighbor pieces are of the same `color`; if so, it will invoke its `destroy()` function.
+### Smoot Motion
+In terms of how the smoot moves and stops, there were several factors. The motion entailed setting a velocity upon the cannon calling `fireSmoot()`, which sets the loaded smoot's velocity:
 
-#Implementation Timeline#
+```JavaScript
+fireSmoot() {
+  this.game.smoot.vel = [
+    this.firePower * Math.cos(this.borePos.angle),
+    -this.firePower * Math.sin(this.borePos.angle)
+  ]
+}
+```
 
-**Day 1**: Set up Node modules, including getting Webpack up and running. Create webpack.config.js and package.json. Write a skeleton of the main script files. Start rendering some basic aspects. Goals for the day:
-* Get a green bundle with webpack
-* Render the board and a placeholder for the cannon
+Again, accounting for the location of the canvas origin, the y-velocity must be negated. The velocity is set based on the angle of the cannon bore (pivoting portion), and it results in motion through the smoot's `move()` method:
 
-**Day 2**: Learn more Canvas. Implement the board, cannon, and moving pieces logic. Allow pieces to clear upon 3+ matching adjacent pieces. Implement the step() method so that the grid descends upon click.
+```JavaScript
+move() {
+  if ((this.centerPos[0] + this.radius >= Settings.BOARD.WIDTH) || (this.centerPos[0] <= this.radius)) {
+    this.vel[0] = -this.vel[0];
+  }
 
-**Day 3**: Implement the game logic and account for edge cases.
+  this.centerPos[0] += this.vel[0];
+  this.centerPos[1] += this.vel[1];
+}
+```
 
-**Day 4**: Improve styling as necessary.
+The move method increments the `centerPos` of the smoot, which is the origin by which each smoot is drawn in its draw method. If a smoot collides with the left or right border of the canvas, the x-velocity is negated, effectively reversing its direction.
+
+### The Grid
+As for ensuring that a smoot land in an appropriate location upon collision with another smoot or the top border, there are smoot placeholders on the whole board; where there isn't a visible smoot, there is a `SmootSpace` object that has the relevant attributes in common but no draw method. Upon collision, the board checks for the closest `gridPos` and `centerPos` and assigns it to the new smoot and assigns that location on the board's grid to hold the newly landed smoot.
+
+```JavaScript
+addToGrid(smoot) {
+  let closestPos, gridPos;
+  [closestPos, gridPos] = this.findClosestPosAndGridPos(smoot);
+
+  smoot.stop();
+  [smoot.centerPos, smoot.gridPos] = [closestPos, gridPos];
+  this.grid[gridPos[0]][gridPos[1]] = smoot;
+}
+```
+
+Having the two classes of objects on the grid simplifies many operations in the game. For instance, when the smoots are cleared, the board simply creates new `SmootSpace`s in those places.
+
+To check for smoot matches, I use the board's `getNeighborGridPositions(gridPos)` method to find the recently landed smoot's neighbors, filter them for just `Smoot`s and not `SmootSpace`s, and for the matching smoots, recursively find their matching neighbors. To ensure I don't check the same ones more than once, I set a property `isChecked` to be true on a smoot as I check it.
+
+## Future Features
+[ ] Dropping floaters
+[ ] Scores
+[ ] Music that can be muted
+[ ] Levels of incrementing difficulty
+[ ] Scalable size for different-sized screens
