@@ -256,7 +256,7 @@ var Game = function () {
     value: function loadRandomSmoot() {
       var color = this.getRandomColor();
       var remainingColors = this.board.getRemainingColors();
-      if (remainingColors.length > 0 && remainingColors.length < 3) {
+      if (remainingColors.length > 0) {
         color = remainingColors[Math.floor(Math.random() * remainingColors.length)];
       }
       return new _smoot2.default({
