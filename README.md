@@ -80,8 +80,8 @@ Having the two classes of objects on the grid simplifies many operations in the 
 To check for smoot matches, I use the board's `getNeighborGridPositions(gridPos)` method to find the recently landed smoot's neighbors, filter them for just `Smoot`s and not `SmootSpace`s, and for the matching smoots, recursively find their matching neighbors. To ensure I don't check the same ones more than once, I set a property `isChecked` to be true on a smoot as I check it.
 
 ## Future Features
-[ ] Dropping floaters
-[ ] Scores
-[ ] Music that can be muted
-[ ] Levels of incrementing difficulty
-[ ] Scalable size for different-sized screens
+- [ ] Dropping floaters
+- [ ] Scores
+- [ ] Music that can be muted
+- [ ] Levels of incrementing difficulty
+- [ ] Scalable size for different-sized screens
