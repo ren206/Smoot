@@ -231,13 +231,17 @@ var Game = function () {
   }, {
     key: 'handleMatches',
     value: function handleMatches() {
+      var _this = this;
+
       var matches = this.board.findNeighboringSmootMatches(this.smoot);
       if (matches.length > 2) {
         this.drop(matches);
         this.resetChecks();
 
-        // const floatingGroups = this.board.findFloatingGroups();
-        // if (floatingGroups.length > 0) floatingGroups.forEach(floater => this.drop(floater));
+        var floatingGroups = this.board.findFloatingGroups();
+        if (floatingGroups.length > 0) floatingGroups.forEach(function (floater) {
+          return _this.drop(floater);
+        });
       }
       this.resetChecks();
     }
@@ -957,7 +961,6 @@ var Board = function () {
           positions.push(neighborPos);
         }
       });
-
       return positions;
     }
   }, {
