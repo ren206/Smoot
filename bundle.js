@@ -85,9 +85,18 @@ exports.default = {
     BG_COLOR: '#000',
     ROW_SIZE: 13,
     ROW_COUNT: 13,
-    FILLED_ROW_COUNT: 5,
+    FILLED_ROW_COUNT: 7,
     OFFSET: 0,
-    GRID_DIRECTIONS: [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]],
+    // GRID_DIRECTIONS: [
+    //   [-1, -1],
+    //   [-1, 0],
+    //   [-1, 1],
+    //   [0, -1],
+    //   [0, 1],
+    //   [1, -1],
+    //   [1, 0],
+    //   [1, 1]
+    // ],
     GRID_DIRECTIONS_LEFT: [[-1, -1], [-1, 0], [0, -1], [0, 1], [1, -1], [1, 0]],
     GRID_DIRECTIONS_RIGHT: [[-1, 0], [-1, 1], [0, -1], [0, 1], [1, 0], [1, 1]]
   },
@@ -857,10 +866,7 @@ var Board = function () {
         }
 
         currentSmoot.isChecked = true;
-        var neighborGridPositions = this.getNeighborGridPositions(currentSmoot.gridPos);
-        var smootNeighborPositions = neighborGridPositions.filter(function (pos) {
-          return _this3.grid[pos[0]][pos[1]] instanceof _smoot2.default;
-        });
+        var smootNeighborPositions = this.getSmootNeighborPositions(currentSmoot.gridPos);
         smootNeighborPositions.forEach(function (smootNeighborPos) {
           var neighborSmoot = _this3.grid[smootNeighborPos[0]][smootNeighborPos[1]];
 
@@ -871,22 +877,6 @@ var Board = function () {
       }
       return floaters;
     }
-
-    // isHanging(smoot) {
-    //   debugger
-    //   if (smoot.isHangingOnTop()) return true;
-    //   let gridPos = smoot.gridPos;
-    //   let neighborGridPositions = this.getNeighborGridPositions(gridPos);
-    //   neighborGridPositions = neighborGridPositions.filter(pos => pos[0] <= gridPos[0]);
-    //   let neighborSmoot;
-    //   neighborGridPositions.forEach(pos => {
-    //     neighborSmoot = this.grid[pos[0]][pos[1]];
-    //     if (this.isHanging(neighborSmoot)) return true;
-    //   })
-    //
-    //   return false;
-    // }
-
   }, {
     key: 'findNeighboringSmootMatches',
     value: function findNeighboringSmootMatches(smoot) {
@@ -895,12 +885,7 @@ var Board = function () {
       var matchingSmoots = [smoot];
       var smootGridPos = smoot.gridPos;
       var matchingPositions = [smootGridPos];
-      var neighborGridPositions = this.getNeighborGridPositions(smootGridPos);
-
-      // ensure the neighbors are Smoots
-      var smootNeighborPositions = neighborGridPositions.filter(function (pos) {
-        return _this4.grid[pos[0]][pos[1]] instanceof _smoot2.default;
-      });
+      var smootNeighborPositions = this.getSmootNeighborPositions(smootGridPos);
 
       // filter for neighbor smoots
       smootNeighborPositions.forEach(function (smootNeighborPos) {
@@ -935,8 +920,10 @@ var Board = function () {
       return colors;
     }
   }, {
-    key: 'getNeighborGridPositions',
-    value: function getNeighborGridPositions(gridPos) {
+    key: 'getSmootNeighborPositions',
+    value: function getSmootNeighborPositions(gridPos) {
+      var _this5 = this;
+
       // gridPos: [rowIdx, slotIdx]
 
       var positions = [];
@@ -949,7 +936,7 @@ var Board = function () {
       var neighborPos = void 0;
       gridDirections.forEach(function (direction) {
         neighborPos = [gridPos[0] + direction[0], gridPos[1] + direction[1]];
-        if (neighborPos[0] >= 0 && neighborPos[0] < _settings2.default.BOARD.ROW_COUNT && neighborPos[1] >= 0 && neighborPos[1] < _settings2.default.BOARD.ROW_SIZE) {
+        if (_this5.grid[neighborPos[0]][neighborPos[1]] instanceof _smoot2.default) {
           positions.push(neighborPos);
         }
       });
@@ -979,7 +966,7 @@ var Board = function () {
     value: function resetChecks() {
       this.grid.forEach(function (row) {
         row.forEach(function (hangingObject) {
-          if (hangingObject instanceof _smoot2.default) hangingObject.resetCheck();
+          hangingObject.resetCheck();
         });
       });
     }
@@ -1252,6 +1239,9 @@ var SmootSpace = function () {
       ctx.arc(this.centerPos[0], this.centerPos[1], this.radius, 0, Math.PI * 2);
       ctx.fill();
     }
+  }, {
+    key: 'resetCheck',
+    value: function resetCheck() {}
   }]);
 
   return SmootSpace;
