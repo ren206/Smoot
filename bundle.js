@@ -749,18 +749,10 @@ var Board = function () {
   }, {
     key: 'draw',
     value: function draw(ctx) {
-      // this.drawBackgroundNonTrailing(ctx);
       this.drawBackgroundClear(ctx);
       this.drawBottom(ctx);
       this.drawGrid(ctx);
       // this.drawBottomLine(ctx);
-    }
-  }, {
-    key: 'drawBackgroundNonTrailing',
-    value: function drawBackgroundNonTrailing(ctx) {
-      ctx.clearRect(0, 0, _settings2.default.BOARD.WIDTH, _settings2.default.BOARD.HEIGHT);
-      ctx.fillStyle = _settings2.default.BOARD.BG_COLOR;
-      ctx.fillRect(0, 0, _settings2.default.BOARD.WIDTH, _settings2.default.BOARD.HEIGHT);
     }
   }, {
     key: 'drawBackgroundClear',
