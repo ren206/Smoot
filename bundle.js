@@ -231,17 +231,13 @@ var Game = function () {
   }, {
     key: 'handleMatches',
     value: function handleMatches() {
-      var _this = this;
-
       var matches = this.board.findNeighboringSmootMatches(this.smoot);
       if (matches.length > 2) {
         this.drop(matches);
         this.resetChecks();
 
-        var floatingGroups = this.board.findFloatingGroups();
-        if (floatingGroups.length > 0) floatingGroups.forEach(function (floater) {
-          return _this.drop(floater);
-        });
+        // const floatingGroups = this.board.findFloatingGroups();
+        // if (floatingGroups.length > 0) floatingGroups.forEach(floater => this.drop(floater));
       }
       this.resetChecks();
     }
