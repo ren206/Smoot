@@ -231,13 +231,17 @@ var Game = function () {
   }, {
     key: 'handleMatches',
     value: function handleMatches() {
+      var _this = this;
+
       var matches = this.board.findNeighboringSmootMatches(this.smoot);
       if (matches.length > 2) {
         this.drop(matches);
         this.resetChecks();
 
-        // const floatingGroups = this.board.findFloatingGroups();
-        // if (floatingGroups.length > 0) floatingGroups.forEach(floater => this.drop(floater));
+        var floatingGroups = this.board.findFloatingGroups();
+        if (floatingGroups.length > 0) floatingGroups.forEach(function (floater) {
+          return _this.drop(floater);
+        });
       }
       this.resetChecks();
     }
@@ -448,16 +452,10 @@ var Smoot = function () {
       return this.centerPos[1] <= this.radius;
     }
   }, {
-    key: 'isHangingOnTop',
-    value: function isHangingOnTop() {
-      this.isChecked = true;
-      return this.gridPos[0] === 0;
-    }
-  }, {
     key: 'matchesWith',
     value: function matchesWith(smoot) {
-      this.isChecked = true;
-      smoot.isChecked = true;
+      // this.isChecked = true;
+      // smoot.isChecked = true;
       return this.color === smoot.color;
     }
   }, {
@@ -875,56 +873,66 @@ var Board = function () {
       }
       return floaters;
     }
-
-    // isHanging(smoot) {
-    //   debugger
-    //   if (smoot.isHangingOnTop()) return true;
-    //   let gridPos = smoot.gridPos;
-    //   let neighborGridPositions = this.getNeighborGridPositions(gridPos);
-    //   neighborGridPositions = neighborGridPositions.filter(pos => pos[0] <= gridPos[0]);
-    //   let neighborSmoot;
-    //   neighborGridPositions.forEach(pos => {
-    //     neighborSmoot = this.grid[pos[0]][pos[1]];
-    //     if (this.isHanging(neighborSmoot)) return true;
-    //   })
-    //
-    //   return false;
-    // }
-
   }, {
     key: 'findNeighboringSmootMatches',
     value: function findNeighboringSmootMatches(smoot) {
       var _this4 = this;
 
-      var matchingSmoots = [smoot];
-      var smootGridPos = smoot.gridPos;
-      var matchingPositions = [smootGridPos];
-      var neighborGridPositions = this.getNeighborGridPositions(smootGridPos);
+      var foundMatch = [];
+      var checkArray = [smoot];
+      var currentSmoot = void 0;
 
-      // ensure the neighbors are Smoots
-      var smootNeighborPositions = neighborGridPositions.filter(function (pos) {
-        return _this4.grid[pos[0]][pos[1]] instanceof _smoot2.default;
-      });
-
-      // filter for neighbor smoots
-      smootNeighborPositions.forEach(function (smootNeighborPos) {
-        var neighborSmoot = _this4.grid[smootNeighborPos[0]][smootNeighborPos[1]];
-
-        // check for matches
-        if (!neighborSmoot.isChecked && smoot.matchesWith(neighborSmoot)) {
-
-          if (!matchingSmoots.includes(neighborSmoot)) {
-            // check each one recursively
-            _this4.findNeighboringSmootMatches(neighborSmoot).forEach(function (smoot) {
-              return matchingSmoots.push(smoot);
-            });
-          }
+      while (checkArray.length > 0) {
+        currentSmoot = checkArray.pop();
+        if (!currentSmoot.isChecked && currentSmoot.matchesWith(smoot)) {
+          foundMatch.push(currentSmoot);
         }
-      });
 
-      // return an array of smoots
-      return matchingSmoots;
+        currentSmoot.isChecked = true;
+        var smootGridPos = currentSmoot.gridPos;
+        var neighborGridPositions = this.getNeighborGridPositions(smootGridPos);
+        var smootNeighborPositions = neighborGridPositions.filter(function (pos) {
+          return _this4.grid[pos[0]][pos[1]] instanceof _smoot2.default;
+        });
+        smootNeighborPositions.forEach(function (smootNeighborPos) {
+          var neighborSmoot = _this4.grid[smootNeighborPos[0]][smootNeighborPos[1]];
+
+          if (!neighborSmoot.isChecked && neighborSmoot.matchesWith(smoot)) {
+            checkArray.push(neighborSmoot);
+          }
+        });
+      }
+
+      return foundMatch;
     }
+
+    // findNeighboringSmootMatches(smoot) {
+    //   let matchingSmoots = [smoot];
+    //   const smootGridPos = smoot.gridPos;
+    //   let matchingPositions = [smootGridPos];
+    //   const neighborGridPositions = this.getNeighborGridPositions(smootGridPos);
+    //
+    //   // ensure the neighbors are Smoots
+    //   const smootNeighborPositions = neighborGridPositions.filter((pos) => (this.grid[pos[0]][pos[1]] instanceof Smoot));
+    //
+    //   // filter for neighbor smoots
+    //   smootNeighborPositions.forEach((smootNeighborPos) => {
+    //     let neighborSmoot = this.grid[smootNeighborPos[0]][smootNeighborPos[1]];
+    //
+    //     // check for matches
+    //     if (!neighborSmoot.isChecked && smoot.matchesWith(neighborSmoot)) {
+    //
+    //       if (!matchingSmoots.includes(neighborSmoot)) {
+    //         // check each one recursively
+    //         this.findNeighboringSmootMatches(neighborSmoot).forEach(smoot => matchingSmoots.push(smoot));
+    //       }
+    //     }
+    //   });
+    //
+    //   // return an array of smoots
+    //   return matchingSmoots;
+    // }
+
   }, {
     key: 'getRemainingColors',
     value: function getRemainingColors() {
