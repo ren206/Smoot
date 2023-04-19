@@ -1,6 +1,6 @@
 # Smoot
 
-[Smoot live](http://www.mren.io/Smoot "Live link")
+[Smoot live](https://ren206.github.io/Smoot/ "Live link")
 
 Smoot is a browser-based circle-matching game. The goal of the game is to clear the board of the colorful circles and not pile them up to the bottom.
 
